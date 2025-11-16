@@ -1,0 +1,58 @@
+<!-- Smart Wall-Mounted System Frame (Tailwind CSS) -->
+<div class="min-h-screen w-full bg-neutral-900 text-neutral-100 flex items-center justify-center p-6">
+  <!-- Maintain a 16:9 device aspect ratio -->
+  <div class="relative w-full max-w-6xl aspect-[16/9]">
+    <!-- Device mount shadow -->
+    <div class="absolute -inset-6 rounded-[2rem] bg-black/60 blur-2xl -z-10"></div>
+
+    <!-- Outer bezel (green) -->
+    <div class="absolute inset-0 rounded-3xl bg-gradient-to-br from-emerald-700 to-emerald-900 ring-1 ring-emerald-300/40 shadow-2xl overflow-hidden">
+      <!-- Decorative reflection -->
+      <div class="pointer-events-none absolute -top-10 -left-10 w-2/3 h-1/2 bg-white/10 blur-2xl rotate-[-10deg]"></div>
+
+      <!-- Inner glass area -->
+      <div class="absolute inset-0 p-5 md:p-8">
+        <div class="h-full w-full rounded-2xl bg-black/40 ring-1 ring-white/10 backdrop-blur-sm overflow-hidden flex flex-col">
+          <!-- Top status bar -->
+          <div class="flex items-center justify-between px-4 py-2 text-xs bg-white/5">
+            <div class="flex items-center gap-2">
+              <!-- <span class="inline-block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-red-300/40"></span>
+              <span class="inline-block h-2.5 w-2.5 rounded-full bg-yellow-400 ring-2 ring-yellow-200/40"></span>
+              <span class="inline-block h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-emerald-200/40"></span> -->
+              <span class="ml-3 uppercase tracking-widest text-[28px] text-neutral-300">Smart Wall</span>
+            </div>
+            <div class="flex items-center gap-4 text-neutral-300">
+              <span class="hidden sm:inline">Wi‑Fi</span>
+              <span class="font-medium text-[28px]">12:45</span>
+            </div>
+          </div>
+
+          <!-- Content area -->
+          <div class="relative flex-1 bg-gradient-to-b from-neutral-900/70 to-neutral-800/60">
+            <!-- Side status LEDs -->
+            <!-- <div class="absolute left-3 top-1/2 -translate-y-1/2 hidden md:flex md:flex-col gap-2">
+              <span class="h-2 w-2 rounded-full bg-emerald-400 ring-2 ring-emerald-200/40"></span>
+              <span class="h-2 w-2 rounded-full bg-amber-400 ring-2 ring-amber-200/40"></span>
+              <span class="h-2 w-2 rounded-full bg-sky-400 ring-2 ring-sky-200/40"></span> 
+            </div>-->
+
+            <!-- Inner panel where the app routes render -->
+            <div class="h-full w-full p-4 md:p-6 overflow-auto">
+              <div class="rounded-xl border border-white/10 bg-white/5 shadow-inner p-4 md:p-6">
+                <router-outlet></router-outlet>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom soft buttons -->
+          <div class="flex items-center justify-center gap-6 px-6 py-3 bg-white/5">
+            <button class="h-2 w-12 rounded-full bg-white/20 hover:bg-white/30 transition"></button>
+            <button class="h-2 w-12 rounded-full bg-white/20 hover:bg-white/30 transition"></button>
+            <button class="h-2 w-12 rounded-full bg-white/20 hover:bg-white/30 transition"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+</div>
