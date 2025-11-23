@@ -1,0 +1,28 @@
+<div class="container mt-5">
+  <div class="flex items-center gap-3 mb-4">
+    <h2 class="m-0">Daily Medication Plan</h2>
+    <select class="ml-auto bg-white/10 border border-white/20 rounded px-3 py-1"
+            [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
+      <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h4>Summary</h4>
+      <ul>
+        <li>Taken: {{summary.taken}}</li>
+        <li>Missed: {{summary.missed}}</li>
+        <li>Postponed: {{summary.postponed}}</li>
+      </ul>
+    </div>
+    <div class="col">
+      <h4>Medications</h4>
+      <div *ngIf="medications.length === 0">No medications yet.</div>
+      <ul>
+        <li *ngFor="let m of medications">
+          {{m.name}} — {{m.dosage}} — {{m.frequency}} ({{m.times?.join(', ')}})
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
