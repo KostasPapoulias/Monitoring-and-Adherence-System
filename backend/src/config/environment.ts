@@ -1,25 +1,42 @@
-// THIS IS THE DOCKER VERSION OF THE ENVIRONMENT
-export const config = {
+// Adaptive environment configuration.
+// Falls back to verbose (local dev) settings when required Docker env vars are missing.
 
-  // application environment mode
-  environment: process.env.ENVIRONMENT || "production",
+// Consider we're in Docker when DB_HOST is provided (DB_PORT may be omitted; default to 27017)
+const hasDockerEnv = !!process.env.DB_HOST;
 
-  // host domain options
+const dockerConfig = {
+  environment: process.env.ENVIRONMENT || 'production',
   protocol: process.env.PROTOCOL || 'http',
-  host: process.env.HOST || "localhost",
-  exposedPort: process.env.EXPOSED_PORT,
-  port: process.env.PORT, // !Do NOT change this option, because it is used by reverse-proxy
-
-  // MongoDB connection options
+  host: process.env.HOST || 'localhost',
+  exposedPort: Number(process.env.EXPOSED_PORT) || 8080,
+  port: Number(process.env.PORT) || 8080,
   mongo: {
-    uri: `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/?authSource=admin`,
+    uri: `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT || 27017}/?authSource=admin`,
     options: {
       dbName: process.env.DB_NAME,
-      user: process.env.DB_ROOT_USERNAME,
-      pass: process.env.DB_ROOT_PASSWORD,
+      // Only include credentials if both are provided
+      ...(process.env.DB_ROOT_USERNAME && process.env.DB_ROOT_PASSWORD
+        ? { user: process.env.DB_ROOT_USERNAME, pass: process.env.DB_ROOT_PASSWORD }
+        : {}),
     }
   },
 };
+
+const verboseConfig = {
+  environment: 'dev',
+  protocol: 'http',
+  host: 'localhost',
+  exposedPort: Number(process.env.PORT) || 8081,
+  port: Number(process.env.PORT) || 8081,
+  mongo: {
+    uri: 'mongodb://localhost:27017/?authSource=admin',
+    options: {
+      dbName: 'ami-fullstack-database',
+    }
+  },
+};
+
+export const config = hasDockerEnv ? dockerConfig : verboseConfig;
 
 
 /**
