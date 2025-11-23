@@ -1,0 +1,38 @@
+<div class="container mt-5">
+  <div class="flex items-center gap-3 mb-3">
+    <h2 class="m-0">Adherence History</h2>
+    <select class="ml-auto bg-white/10 border border-white/20 rounded px-3 py-1"
+            [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
+      <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
+    </select>
+  </div>
+  <div>
+    <strong>Summary:</strong>
+    <span class="ms-2">Taken: {{summary.taken}}</span>
+    <span class="ms-2">Missed: {{summary.missed}}</span>
+    <span class="ms-2">Postponed: {{summary.postponed}}</span>
+  </div>
+  <hr>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Medication</th>
+        <th>Type</th>
+        <th>Scheduled</th>
+        <th>Confirmed</th>
+        <th>Method</th>
+        <th>Device</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let e of events">
+        <td>{{e.medicationId}}</td>
+        <td>{{e.type}}</td>
+        <td>{{e.scheduledAt | date:'short'}}</td>
+        <td>{{e.confirmedAt ? (e.confirmedAt | date:'short') : '-'}}</td>
+        <td>{{e.method || '-'}}</td>
+        <td>{{e.device || '-'}}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

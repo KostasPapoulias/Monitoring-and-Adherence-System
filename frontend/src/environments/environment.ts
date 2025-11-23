@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  host: 'http://localhost:8080', // change "localhost" to your IP address
+  // The Angular app runs in the browser; use host-exposed backend port
+  host: 'http://localhost:8080',
   faceModelsPath: 'assets/models'
 };
 /*
