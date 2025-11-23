@@ -7,12 +7,11 @@ export class FaceRecognitionService {
   private modelsLoaded = false;
   private referenceDescriptor: Float32Array | null = null;
   private matcher: any | null = null;
-  public readonly threshold = 0.5; // lower = stricter
+  public readonly threshold = 0.9; // lower = stricter
 
   async loadModels(modelsBasePath?: string): Promise<void> {
     if (this.modelsLoaded) return;
     const base = modelsBasePath || environment.faceModelsPath || 'assets/models';
-    // Use the tiny detector for speed
     try {
       await Promise.all([
         faceapi.nets.tinyFaceDetector.loadFromUri(base),

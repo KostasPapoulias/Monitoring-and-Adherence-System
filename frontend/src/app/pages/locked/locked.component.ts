@@ -132,7 +132,7 @@ export class LockedComponent implements OnInit, OnDestroy {
 
   private async tryLoadAssetReference(setAsReference: boolean) {
     // Use the exact asset the user specified
-    const url = `/assets/ref2.jpg`;
+    const url = `assets/fault.jpg`;
     try {
       const img = await this.loadImage(url);
       this.refImgUrl = url;
@@ -171,6 +171,7 @@ export class LockedComponent implements OnInit, OnDestroy {
     try {
       const res = await this.face.compareFromVideo(this.videoRef.nativeElement);
       this.distance = res.distance;
+      console.log('face distance:', res.distance);
       if (res.matched) {
         this.recognized = true;
         this.scanning = false;

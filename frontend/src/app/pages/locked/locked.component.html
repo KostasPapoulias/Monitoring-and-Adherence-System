@@ -1,6 +1,5 @@
 <div class="h-full w-full p-4">
   <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-    <!-- Left: Camera + buttons -->
     <div class="md:col-span-2">
       <div class="rounded-xl border border-white/10 bg-white/5 p-4">
         <div class="w-full rounded-lg bg-black/40 overflow-hidden relative grid place-items-center h-48 sm:h-56 md:h-64">
@@ -21,23 +20,6 @@
           Unlock
         </button>
       </div>
-    </div>
-
-    <!-- Right: Reference preview only -->
-    <div class="rounded-xl border border-white/10 bg-white/5 p-4">
-      <div class="text-sm text-neutral-200 font-medium mb-3">Reference</div>
-      <ng-container *ngIf="refImgUrl; else noRef">
-        <img [src]="refImgUrl" alt="Reference" class="w-full max-h-64 object-cover rounded-lg border border-white/10" />
-      </ng-container>
-      <ng-template #noRef>
-          <div class="text-xs text-neutral-400">
-            No reference loaded. Put your photo at <code>src/assets/doc_8_js.(jpg|jpeg|png|webp)</code> or <code>src/assets/doc_8_hs.(jpg|jpeg|png|webp)</code>.
-            <div class="mt-2" *ngIf="attemptedAssetUrls?.length">
-              Tried:
-              <code class="block text-[10px] whitespace-pre-wrap">{{ attemptedAssetUrls.join('\n') }}</code>
-            </div>
-          </div>
-      </ng-template>
-    </div>
+    </div>    
   </div>
 </div>
