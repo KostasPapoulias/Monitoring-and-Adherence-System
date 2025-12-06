@@ -17,6 +17,9 @@ export class DashboardComponent implements OnInit {
   summary: ReportSummaryModel = new ReportSummaryModel();
   personas: PersonaModel[] = [];
   selectedPersonaId: string | null = null;
+  postponedEvents: any[] = [];
+  nextMedication: MedicationModel | null = null;
+  nextTime: string | null = null;
 
   constructor(
     private meds: MedicationsService,
@@ -42,5 +45,29 @@ export class DashboardComponent implements OnInit {
   private refreshData(userId: string) {
     this.meds.getAll().subscribe(ms => this.medications = ms.filter(m => m.userId === userId));
     this.adherence.summary({ userId }).subscribe(s => this.summary = s);
+    this.adherence.list({ userId, type: 'postponed' }).subscribe(evts => this.postponedEvents = evts || []);
+    // compute next medication by soonest upcoming time today
+    this.computeNextMedication();
+  }
+
+  private computeNextMedication() {
+    const now = new Date();
+    let best: { med: MedicationModel; time: string; date: Date } | null = null;
+    for (const m of this.medications) {
+      for (const t of m.times || []) {
+        const [hh, mm] = t.split(':').map(x => parseInt(x, 10));
+        const dt = new Date(now);
+        dt.setHours(hh || 0, mm || 0, 0, 0);
+        if (dt < now) continue; // only upcoming today
+        if (!best || dt < best.date) best = { med: m, time: t, date: dt };
+      }
+    }
+    this.nextMedication = best?.med || null;
+    this.nextTime = best?.time || null;
+  }
+
+  openMedicationDetails(med: MedicationModel) {
+    const info = `${med.name}\nDose: ${med.dosage}\nFrequency: ${med.frequency}\nTimes: ${(med.times||[]).join(', ')}`;
+    alert(info);
   }
 }

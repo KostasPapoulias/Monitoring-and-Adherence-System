@@ -22,6 +22,7 @@
         <th>Confirmed</th>
         <th>Method</th>
         <th>Device</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -32,6 +33,9 @@
         <td>{{e.confirmedAt ? (e.confirmedAt | date:'short') : '-'}}</td>
         <td>{{e.method || '-'}}</td>
         <td>{{e.device || '-'}}</td>
+        <td>
+          <button *ngIf="e.type==='taken'" class="btn btn-sm btn-warning" (click)="cancelTaken(e)">Cancel (postpone)</button>
+        </td>
       </tr>
     </tbody>
   </table>

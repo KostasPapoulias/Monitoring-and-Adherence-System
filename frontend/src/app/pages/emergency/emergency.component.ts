@@ -8,6 +8,10 @@ import { AlertsService } from 'src/app/global/services/alerts/alerts.service';
 })
 export class EmergencyComponent {
   status: string = '';
+  showGif: boolean = false;
   constructor(private alerts: AlertsService) {}
-  trigger() { this.alerts.trigger({ channel: 'app', reason: 'manual' }).subscribe(() => this.status = 'Emergency alert sent'); }
+  trigger() {
+    this.alerts.trigger({ channel: 'app', reason: 'manual' }).subscribe(() => this.status = 'Emergency alert sent');
+    this.showGif = true;
+  }
 }

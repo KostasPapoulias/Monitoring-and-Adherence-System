@@ -33,4 +33,15 @@ export class HistoryComponent implements OnInit {
     this.adherence.list({ userId }).subscribe(e => this.events = e);
     this.adherence.summary({ userId }).subscribe(s => this.summary = s);
   }
+
+  cancelTaken(e: AdherenceEventModel) {
+    if (!e.medicationId || !e.scheduledAt) return;
+    const postponeMinutes = 30; // default postpone duration
+    this.adherence.postpone({ medicationId: e.medicationId, scheduledAt: e.scheduledAt, postponeMinutes })
+      .subscribe(() => {
+        // refresh after postponing
+        const id = this.selectedPersonaId;
+        if (id) this.refreshData(id);
+      });
+  }
 }

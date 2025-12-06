@@ -1,0 +1,44 @@
+<div class="container mt-5">
+  <div class="flex items-center gap-3 mb-3">
+    <h2 class="m-0">Medication Schedule</h2>
+    <select class="ml-auto bg-white/10 border border-white/20 rounded px-3 py-1"
+            [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
+      <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
+    </select>
+  </div>
+
+  <div class="btn-group mb-3" role="group">
+    <button class="btn btn-outline-primary" [class.active]="view==='day'" (click)="setView('day')">Day</button>
+    <button class="btn btn-outline-primary" [class.active]="view==='week'" (click)="setView('week')">Week</button>
+    <button class="btn btn-outline-primary" [class.active]="view==='month'" (click)="setView('month')">Month</button>
+  </div>
+
+  <div *ngIf="view==='day'">
+    <h4>Today</h4>
+    <ul>
+      <li *ngFor="let m of medications">
+        {{m.name}} — {{m.dosage}} — times: {{m.times?.join(', ')}}
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="view==='week'">
+    <h4>This Week</h4>
+    <p>Weekly view placeholder — will expand with calendar grid.</p>
+    <ul>
+      <li *ngFor="let m of medications">
+        {{m.name}} — {{m.frequency}} — times: {{m.times?.join(', ')}}
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="view==='month'">
+    <h4>This Month</h4>
+    <p>Monthly view placeholder — will expand with calendar grid.</p>
+    <ul>
+      <li *ngFor="let m of medications">
+        {{m.name}} — {{m.frequency}}
+      </li>
+    </ul>
+  </div>
+</div>

@@ -1,5 +1,8 @@
-<div class="container mt-5 text-center">
+<div class="container mt-4 text-center">
   <h2>Emergency</h2>
   <button class="btn btn-danger" (click)="trigger()">Trigger Emergency Alert</button>
   <div class="mt-2">{{status}}</div>
+  <div *ngIf="showGif" class="mt-2">
+    <iframe src="https://tenor.com/embed/26066047" width="400" height="300" frameborder="0" allowfullscreen></iframe>
+  </div>
 </div>
