@@ -8,7 +8,7 @@ import { StatusCodes } from 'http-status-codes';
 import { Api } from './api';
 import { MongoAdapter } from './database';
 import { config, getHostDomain } from './config/environment';
-import { DIContainer, SocketsService } from './services';
+import { DIContainer, SocketsService, ReminderScheduler } from './services';
 import { Logger } from './api/shared/utils/logger';
 import { PersonaModel } from './api/v1/personas/persona.model';
 import { MedicationModel } from './api/v1/medications/medication.model';
@@ -34,6 +34,12 @@ export class App {
             // Start socket server
             const socketService = DIContainer.get(SocketsService);
             await socketService.start(server);
+
+            // Start reminder scheduler (generate today's jobs and dispatch loop)
+            const scheduler = DIContainer.get(ReminderScheduler);
+            await scheduler.generateToday();
+            // poll every 30 seconds for due reminders
+            setInterval(() => scheduler.dispatchDue(), 30_000);
 
             // Finally start server
             server.listen(config.port, () => {

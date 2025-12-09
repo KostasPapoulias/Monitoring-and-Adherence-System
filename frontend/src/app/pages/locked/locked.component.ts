@@ -1,6 +1,8 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { FaceRecognitionService } from 'src/app/global/services/face/face-recognition.service';
+import { PresenceService } from 'src/app/global/services/presence/presence.service';
+import { PersonaStateService } from 'src/app/global/services/personas/persona-state.service';
 
 @Component({
   selector: 'app-locked',
@@ -14,13 +16,19 @@ export class LockedComponent implements OnInit, OnDestroy {
   recognized = false;
   loadingModels = true;
   distance: number | null = null;
+  proximity: 'near' | 'far' | null = null;
   cameraError: string | null = null;
   refImgUrl: string | null = null;
   attemptedAssetUrls: string[] = [];
   private stream: MediaStream | null = null;
   private rafId: number | null = null;
 
-  constructor(private router: Router, private face: FaceRecognitionService) {}
+  constructor(
+    private router: Router,
+    private face: FaceRecognitionService,
+    private presence: PresenceService,
+    private personaState: PersonaStateService
+  ) {}
 
   async ngOnInit() {
     try {
@@ -79,6 +87,8 @@ export class LockedComponent implements OnInit, OnDestroy {
   stopScan() {
     this.scanning = false;
     this.stopCamera();
+    // mark not present when stopping
+    this.presence.update({ present: false, device: 'wall-display' }).subscribe();
   }
 
   private async startCamera() {
@@ -171,7 +181,16 @@ export class LockedComponent implements OnInit, OnDestroy {
     try {
       const res = await this.face.compareFromVideo(this.videoRef.nativeElement);
       this.distance = res.distance;
+      this.proximity = res.proximity || null;
       console.log('face distance:', res.distance);
+
+      // send presence hints to backend so dashboard can react
+      const distanceMeters = this.proximity === 'near' ? 1 : this.proximity === 'far' ? 3 : null;
+      const personaId = this.personaState.current();
+      if (distanceMeters !== null) {
+        this.presence.update({ present: true, device: 'wall-display', distanceMeters, personaId }).subscribe();
+      }
+
       if (res.matched) {
         this.recognized = true;
         this.scanning = false;
@@ -201,6 +220,8 @@ export class LockedComponent implements OnInit, OnDestroy {
       this.refImgUrl = null;
       this.recognized = false;
       this.distance = null;
+      this.proximity = null;
+      this.presence.update({ present: false, device: 'wall-display' }).subscribe();
     } catch (e) {
       console.error(e);
     }

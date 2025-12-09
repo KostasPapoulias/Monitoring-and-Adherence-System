@@ -6,37 +6,40 @@
       <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
     </select>
   </div>
-  <div>
+  <div class="mb-3">
     <strong>Summary:</strong>
     <span class="ms-2">Taken: {{summary.taken}}</span>
     <span class="ms-2">Missed: {{summary.missed}}</span>
     <span class="ms-2">Postponed: {{summary.postponed}}</span>
   </div>
   <hr>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Medication</th>
-        <th>Type</th>
-        <th>Scheduled</th>
-        <th>Confirmed</th>
-        <th>Method</th>
-        <th>Device</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let e of events">
-        <td>{{e.medicationId}}</td>
-        <td>{{e.type}}</td>
-        <td>{{e.scheduledAt | date:'short'}}</td>
-        <td>{{e.confirmedAt ? (e.confirmedAt | date:'short') : '-'}}</td>
-        <td>{{e.method || '-'}}</td>
-        <td>{{e.device || '-'}}</td>
-        <td>
-          <button *ngIf="e.type==='taken'" class="btn btn-sm btn-warning" (click)="cancelTaken(e)">Cancel (postpone)</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Medication</th>
+          <th>Type</th>
+          <th>Scheduled</th>
+          <th>Confirmed</th>
+          <th>Method</th>
+          <th>Device</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let e of events">
+          <td>{{e.medicationId}}</td>
+          <td>{{e.type}}</td>
+          <td>{{e.scheduledAt | date:'short'}}</td>
+          <td>{{e.confirmedAt ? (e.confirmedAt | date:'short') : '-'}}
+          </td>
+          <td>{{e.method || '-'}}</td>
+          <td>{{e.device || '-'}}</td>
+          <td>
+            <button *ngIf="e.type==='taken'" class="btn btn-sm btn-warning" (click)="cancelTaken(e)">Cancel (postpone)</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -1,1 +1,45 @@
 :host { display: block; }
+
+.mobile-layout {
+	padding: 0 12px;
+}
+
+.wall-layout {
+	max-width: 100%;
+	padding: 0 24px;
+}
+
+.card-block {
+	padding: 16px;
+	border: 1px solid rgba(255,255,255,0.1);
+	border-radius: 12px;
+	background: rgba(255,255,255,0.05);
+	min-width: 0; /* allow text to wrap on small screens so content doesn't overflow */
+}
+
+button {
+	min-height: 42px;
+}
+
+.dashboard-shell {
+	min-height: 100vh;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding-bottom: 64px;
+}
+
+.dashboard-grid {
+	width: 100%;
+}
+
+@media (max-width: 768px) {
+	h1 { width: 100%; }
+	.card-block { padding: 14px; }
+	.text-2xl { font-size: 1.4rem; }
+	.card-block { margin-bottom: 12px; }
+	.dashboard-shell { padding-bottom: 96px; }
+	.font-semibold.text-xl { font-size: 1.2rem; }
+	.text-base { font-size: 1rem; }
+	.text-2xl { font-size: 1.5rem; }
+	.dashboard-grid { grid-template-columns: 1fr; }
+}

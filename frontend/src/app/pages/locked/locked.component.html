@@ -7,6 +7,14 @@
           <div class="text-neutral-400" *ngIf="!scanning && !recognized">Camera idle</div>
           <div class="text-emerald-300 animate-pulse" *ngIf="scanning">Scanning face…</div>
           <div class="text-emerald-400" *ngIf="recognized">Face recognized ✔</div>
+          <div class="absolute bottom-2 left-2 right-2 text-center">
+            <div *ngIf="proximity === 'far'" class="text-amber-200 bg-black/40 inline-block px-3 py-1 rounded">
+              Face detected far away — please move closer to view details.
+            </div>
+            <div *ngIf="proximity === 'near' && !recognized" class="text-emerald-200 bg-black/40 inline-block px-3 py-1 rounded">
+              Face close enough — hold steady to verify.
+            </div>
+          </div>
           <div class="mt-2 text-sm text-rose-300" *ngIf="cameraError">{{ cameraError }}</div>
         </div>
       </div>

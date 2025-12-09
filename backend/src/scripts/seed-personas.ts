@@ -52,11 +52,12 @@ async function seed() {
   const medsByPersona: Record<string, any[]> = {
     'Eleni Papadaki': [
       { name: 'ACE inhibitor', dosage: '10mg', frequency: 'daily', times: ['08:00'], sideEffects: ['dizziness'] },
-      { name: 'Beta blocker', dosage: '5mg', frequency: 'daily', times: ['20:00'], sideEffects: ['fatigue'] },
+      { name: 'Beta blocker', dosage: '5mg', frequency: 'daily', times: ['13:56'], sideEffects: ['fatigue'] },
     ],
     'Maria Kostaki': [
-      { name: 'Iron supplement', dosage: '325mg', frequency: 'daily', times: ['09:00'] },
-      { name: 'Vitamin D', dosage: '2000 IU', frequency: 'daily', times: ['09:00'] },
+      // Keep upcoming all day for testing
+      { name: 'Iron supplement', dosage: '325mg', frequency: 'daily', times: ['14:10'] },
+      { name: 'Vitamin D', dosage: '2000 IU', frequency: 'daily', times: ['23:59'] },
     ],
     'Sofia Lianou': [
       { name: 'Antibiotic', dosage: '250mg', frequency: 'twice daily', times: ['08:00','20:00'] },
@@ -76,8 +77,14 @@ async function seed() {
     const medDocs: any[] = [];
     for (const m of meds) {
       const existingMed = await MedicationModel.findOne({ name: m.name, userId: String(personaDoc._id) }).exec();
-      const med = existingMed || await new MedicationModel({ ...m, userId: String(personaDoc._id) }).save();
-      medDocs.push(med);
+      if (existingMed) {
+        existingMed.set({ ...m, userId: String(personaDoc._id) });
+        await existingMed.save();
+        medDocs.push(existingMed);
+      } else {
+        const med = await new MedicationModel({ ...m, userId: String(personaDoc._id) }).save();
+        medDocs.push(med);
+      }
     }
 
     // seed simple recent adherence history (last 5 days for each medication)

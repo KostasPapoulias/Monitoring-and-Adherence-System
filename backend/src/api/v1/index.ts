@@ -7,6 +7,7 @@ import { AdherenceController } from './adherence/adherence.controller';
 import { AlertsController } from './alerts/alerts.controller';
 import { PresenceController } from './presence/presence.controller';
 import { PersonaController } from './personas/persona.controller';
+import { ReminderController } from './reminders/reminder.controller';
 const apiV1Router = express.Router();
 
 
@@ -36,6 +37,10 @@ apiV1Router
   .use(
     '/alerts',
     new AlertsController().applyRoutes()
+  )
+  .use(
+    '/reminders',
+    new ReminderController().applyRoutes()
   )
   .use(
     '/presence',

@@ -1,43 +1,65 @@
-<div class="container mt-1">
-  <div class="flex items-center gap-3 mb-3">
-    <h1 class="m-0 text-4xl">Greetings</h1>
-    <select class="ml-auto bg-white/10 border border-white/20 rounded px-3 py-1"
+<div class="container dashboard-shell mt-1" [class.mobile-layout]="isMobile" [class.wall-layout]="isWallDisplay && !isMobile">
+  <div class="flex items-center gap-3 mb-3 flex-wrap">
+    <h1 class="m-0 text-3xl md:text-4xl">Dashboard</h1>
+    <select class="ml-auto bg-white/10 border border-white/20 rounded px-3 py-2 text-base w-full md:w-auto"
             [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
       <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
     </select>
   </div>
-  <div class="row">
-    <div class="col-md-4 mb-3">
+
+    <!-- hidden video for background face scan (kept offscreen but with dimensions so detection works) -->
+    <video #bgVideo playsinline muted width="320" height="240"
+      class="absolute opacity-0 pointer-events-none" style="left:-9999px; top:-9999px;"></video>
+
+  <!-- Wall display adaptive block (desktop only) -->
+  <div *ngIf="isWallDisplay && !isMobile" class="mb-4 p-4 rounded border border-white/10 bg-white/5">
+    <div *ngIf="viewMode === 'general'">
+      <h2 class="text-3xl mb-2">Welcome</h2>
+      <p class="text-lg">Step closer so we can show your medication schedule.</p>
+    </div>
+    <div *ngIf="viewMode === 'detailed'">
+      <h2 class="text-3xl mb-2">Hello, {{detailedPersona?.name}}</h2>
+      <p class="text-lg mb-3">Here is your daily medication plan:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div *ngFor="let m of detailedMeds" class="p-3 rounded border border-white/10 bg-white/10">
+          <div class="font-semibold text-xl">{{m.name}}</div>
+          <div>Dose: {{m.dosage}}</div>
+          <div>Times: {{m.times?.join(', ')}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-grid grid gap-3 md:grid-cols-3">
+    <div class="md:col-span-1 card-block">
       <h4>Summary</h4>
-      <ul>
+      <ul class="list-unstyled mb-2">
         <li>Taken: {{summary.taken}}</li>
         <li>Missed: {{summary.missed}}</li>
         <li>Postponed: {{summary.postponed}}</li>
       </ul>
       <h5 class="mt-3">Postponed</h5>
       <div *ngIf="postponedEvents.length === 0">No postponed doses.</div>
-      <ul>
+      <ul class="list-unstyled">
         <li *ngFor="let e of postponedEvents">{{e.medicationId}} — {{e.scheduledAt | date:'shortTime'}}</li>
       </ul>
     </div>
-    <div class="col-md-8 mb-3">
+    <div class="md:col-span-2 card-block">
       <h4 class="text-2xl">Upcoming</h4>
       <div *ngIf="!nextMedication">No upcoming medication today.</div>
       <div *ngIf="nextMedication" class="p-4 rounded border border-white/10 bg-white/5">
-        <div class="flex items-center justify-between">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <div class="font-semibold text-xl">{{nextMedication.name}}</div>
             <div class="text-base">Dose: {{nextMedication.dosage}} • {{nextMedication.frequency}}</div>
             <div class="text-base">All times: {{nextMedication.times?.join(', ')}}</div>
           </div>
-          <div class="text-2xl font-medium">{{nextTime}}</div>
+          <div class="text-2xl font-medium whitespace-nowrap">{{nextTime}}</div>
         </div>
-        <div class="mt-2">
-          <button class="btn btn-primary btn-sm" (click)="openMedicationDetails(nextMedication)">Details</button>
+        <div class="mt-3 flex gap-2 flex-wrap">
+          <button class="btn btn-primary btn-sm w-full sm:w-auto" (click)="openMedicationDetails(nextMedication)">Details</button>
         </div>
       </div>
-
-      
     </div>
   </div>
 </div>

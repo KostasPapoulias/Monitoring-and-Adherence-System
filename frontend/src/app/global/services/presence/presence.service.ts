@@ -3,7 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-interface PresenceState { present: boolean; distanceMeters: number | null; device: string | null }
+export interface PresenceState {
+  present: boolean;
+  distanceMeters: number | null;
+  device: string | null;
+  viewMode?: 'general' | 'detailed';
+  persona?: any;
+  meds?: any[];
+  brightnessHint?: number | null;
+  contrastHint?: number | null;
+  lastSeen?: string | null;
+  posture?: string | null;
+  personaId?: string | null;
+}
 
 @Injectable({ providedIn: 'root' })
 export class PresenceService {

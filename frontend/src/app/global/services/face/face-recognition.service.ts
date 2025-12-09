@@ -33,6 +33,21 @@ export class FaceRecognitionService {
     }
   }
 
+  async detectOnly(video: HTMLVideoElement): Promise<{ detected: boolean; proximity?: 'near' | 'far'; box?: { width: number; height: number; x: number; y: number } }> {
+    if (!this.modelsLoaded) throw new Error('Models not loaded');
+    const det = await faceapi.detectSingleFace(
+      video,
+      new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 })
+    );
+    if (!det) return { detected: false };
+    const box = det.box;
+    const frameArea = (video.videoWidth || 1) * (video.videoHeight || 1);
+    const faceArea = box.width * box.height;
+    const ratio = faceArea / Math.max(frameArea, 1);
+    const proximity: 'near' | 'far' = ratio >= 0.08 ? 'near' : 'far';
+    return { detected: true, proximity, box: { width: box.width, height: box.height, x: box.x, y: box.y } };
+  }
+
   hasReference(): boolean {
     return !!this.referenceDescriptor || !!localStorage.getItem('face_ref_descriptor');
   }
@@ -70,20 +85,40 @@ export class FaceRecognitionService {
     await this.setReferenceFromImageElement(img);
   }
 
-  async compareFromVideo(video: HTMLVideoElement): Promise<{ matched: boolean; distance: number | null }>{
+  async compareFromVideo(video: HTMLVideoElement): Promise<{
+    matched: boolean;
+    distance: number | null;
+    box?: { width: number; height: number; x: number; y: number };
+    proximity?: 'near' | 'far';
+  }>{
     if (!this.modelsLoaded) throw new Error('Models not loaded');
     if (!this.referenceDescriptor || !this.matcher) {
       const ok = await this.loadReferenceFromStorage();
       if (!ok) return { matched: false, distance: null };
     }
     const det = await faceapi
-      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+      .detectSingleFace(
+        video,
+        new faceapi.TinyFaceDetectorOptions({ inputSize: 320, scoreThreshold: 0.5 })
+      )
       .withFaceLandmarks()
       .withFaceDescriptor();
-    if (!det) return { matched: false, distance: null };
+    if (!det) return { matched: false, distance: null, box: undefined, proximity: undefined };
 
     const best = this.matcher!.findBestMatch(det.descriptor);
-    return { matched: best.distance <= this.threshold, distance: best.distance };
+    const box = det.detection.box;
+    // crude proximity estimate: face area relative to frame
+    const frameArea = (video.videoWidth || 1) * (video.videoHeight || 1);
+    const faceArea = box.width * box.height;
+    const ratio = faceArea / Math.max(frameArea, 1);
+    const proximity: 'near' | 'far' = ratio >= 0.08 ? 'near' : 'far';
+
+    return {
+      matched: best.distance <= this.threshold,
+      distance: best.distance,
+      box: { width: box.width, height: box.height, x: box.x, y: box.y },
+      proximity
+    };
   }
 
   private fileToImage(file: File): Promise<HTMLImageElement> {
