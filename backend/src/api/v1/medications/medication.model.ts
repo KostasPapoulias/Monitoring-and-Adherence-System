@@ -8,6 +8,7 @@ export interface IMedication extends Document {
   times: string[];
   sideEffects?: string[];
   userId?: string;
+  limits?: { maxPostponeMinutes: number; windowMinutes: number };
 }
 
 const medicationSchema = new Schema(
@@ -17,10 +18,21 @@ const medicationSchema = new Schema(
     frequency: { type: String, required: true },
     times: { type: [String], default: [] },
     sideEffects: { type: [String], default: [] },
-    userId: { type: String }
+    userId: { type: String },
+    limits: {
+      type: {
+        maxPostponeMinutes: { type: Number, default: 30 },
+        windowMinutes: { type: Number, default: 30 }
+      },
+      default: { maxPostponeMinutes: 30, windowMinutes: 30 }
+    }
   },
   { ...DefaultSchemaOptions }
 );
+
+// TODO(integration): When wiring the frontend to backend, consider returning computed fields
+// (status, postponedUntil, alert) in a dedicated endpoint, e.g. GET /medications/:userId/today.
+// These can be derived by joining the medication with the latest AdherenceEvents for each scheduledAt.
 
 export const MedicationModel: Model<IMedication> = model<IMedication>(
   'Medication', medicationSchema, 'Medication'

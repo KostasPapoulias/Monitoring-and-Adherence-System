@@ -179,6 +179,7 @@ export class App {
                 'Eleni Papadaki': [
                     { name: 'ACE inhibitor', dosage: '10mg', frequency: 'daily', times: ['08:00'], sideEffects: ['dizziness'] },
                     { name: 'Beta blocker', dosage: '5mg', frequency: 'daily', times: ['20:00'], sideEffects: ['fatigue'] },
+                    { name: 'Diuretic', dosage: '20mg', frequency: 'daily', times: ['12:00'], sideEffects: ['increased urination'] },
                 ],
                 'Maria Kostaki': [
                     { name: 'Iron supplement', dosage: '325mg', frequency: 'daily', times: ['09:00'] },

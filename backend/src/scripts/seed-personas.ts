@@ -53,6 +53,7 @@ async function seed() {
     'Eleni Papadaki': [
       { name: 'ACE inhibitor', dosage: '10mg', frequency: 'daily', times: ['08:00'], sideEffects: ['dizziness'] },
       { name: 'Beta blocker', dosage: '5mg', frequency: 'daily', times: ['13:56'], sideEffects: ['fatigue'] },
+      { name: 'Diuretic', dosage: '20mg', frequency: 'daily', times: ['12:29'], sideEffects: ['increased urination'] },
     ],
     'Maria Kostaki': [
       // Keep upcoming all day for testing

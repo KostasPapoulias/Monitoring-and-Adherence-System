@@ -189,15 +189,43 @@ export class AdherenceController extends ResourceController<IAdherenceEvent> {
   postponeReminder = async (req: Request, res: Response) => {
     this.logger.debug('postponeReminder request');
     const body = req.body || {};
+    if (!body.medicationId || !body.scheduledAt) {
+      return res.status(StatusCodes.BAD_REQUEST).json({ message: 'medicationId and scheduledAt are required' });
+    }
+    const med = await MedicationModel.findById(body.medicationId).lean().exec();
+    const userId = med?.userId;
+    const scheduledAt = new Date(body.scheduledAt);
+    const postponeMinutes = Number(body.postponeMinutes || 5);
+
+    // record postpone event
     const created = await new AdherenceEventModel({
-      userId: body.userId,
+      userId,
       medicationId: body.medicationId,
-      scheduledAt: body.scheduledAt,
+      scheduledAt,
       type: 'postponed',
-      postponeMinutes: body.postponeMinutes || 5
+      postponeMinutes
     }).save();
+
+    // compute cumulative postpone for this dose
+    const events = await AdherenceEventModel.find({ medicationId: body.medicationId, scheduledAt, type: 'postponed' }).lean().exec();
+    const totalPostpone = events.reduce((sum, e: any) => sum + (e.postponeMinutes || 0), 0);
+    const maxPostpone = med?.limits?.maxPostponeMinutes ?? 30;
+    if (totalPostpone > maxPostpone) {
+      await new AdherenceEventModel({
+        userId,
+        medicationId: body.medicationId,
+        scheduledAt,
+        type: 'alert',
+        alertReason: 'thresholdExceeded'
+      }).save();
+      return res.status(StatusCodes.OK).json({ ...created.toObject(), alert: { active: true, reason: 'thresholdExceeded' } });
+    }
     return res.status(StatusCodes.OK).json(created);
   };
+
+  // TODO(integration): For confirm/taken and general status computation,
+  // add a read endpoint to aggregate latest events per dose and return status/postponedUntil/alert.
+  // This enables the frontend to consume a single payload without manual joins.
 
   // helpers
   private async fetchEventsByUser(userId?: string) {
