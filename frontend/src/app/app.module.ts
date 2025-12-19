@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { TasksComponent } from './pages/tasks/tasks.component';
 import { SocketIoModule, SocketIoConfig } from 'ngx-socket-io';
 import { environment } from 'src/environments/environment';
+import { MOCK_PROVIDERS } from './global/mock/mock.providers';
 import { ItemShopComponent } from './pages/item-shop/item-shop.component';
 import { ItemPreviewComponent } from './pages/item-shop/item-preview/item-preview.component';
 
@@ -23,7 +24,7 @@ const socketIoConfig: SocketIoConfig = { url: environment.host, options: {} };
     AppRoutingModule,
     HttpClientModule
   ],
-  providers: [],
+  providers: [ ...(environment.offline ? MOCK_PROVIDERS : []) ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

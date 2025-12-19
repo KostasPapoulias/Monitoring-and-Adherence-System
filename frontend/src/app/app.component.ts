@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+
 import { PersonasService } from './global/services/personas/personas.service';
 import { PersonaStateService } from './global/services/personas/persona-state.service';
 import { PersonaModel } from './global/models/personas/persona.model';

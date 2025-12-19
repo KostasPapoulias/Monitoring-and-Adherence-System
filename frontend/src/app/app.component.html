@@ -1,5 +1,6 @@
-<div class="app-shell min-h-screen w-full bg-neutral-900 text-neutral-100">
-  <header class="topbar flex items-center justify-between px-4 md:px-6 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
+<div class="app-shell h-screen w-full overflow-hidden bg-neutral-900 text-neutral-100 flex flex-col">
+  
+  <header class="topbar flex-none flex items-center justify-between px-4 md:px-6 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
     <div class="flex items-center gap-2">
       <span class="uppercase tracking-widest text-lg md:text-xl text-neutral-200">Smart Wall</span>
     </div>
@@ -9,8 +10,9 @@
     </div>
   </header>
 
-  <main class="content-wrapper px-3 md:px-6 py-4 md:py-6">
-    <div class="content-panel rounded-xl border border-white/10 bg-white/5 shadow-inner">
+  <main class="content-wrapper flex-1 min-h-0 overflow-hidden flex flex-col w-full">
+    <div class="content-panel h-full flex flex-col border-b border-white/10 bg-white/5 shadow-inner overflow-hidden w-full">
+      
       <ng-container *ngIf="useBurgerNav; else desktopNav">
         <div class="burger-nav p-3 border-b border-white/10 bg-black/30">
           <div class="flex items-center justify-between">
@@ -33,17 +35,20 @@
           </div>
         </div>
       </ng-container>
+
       <ng-template #desktopNav>
-        <nav class="primary-nav flex flex-wrap gap-2 p-3 border-b border-white/10 bg-black/20">
+        <nav class="primary-nav flex-none flex flex-wrap gap-2 p-3 border-b border-white/10 bg-black/20">
           <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 transition">Dashboard</a>
           <a routerLink="/schedule" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 transition">Schedule</a>
           <a routerLink="/history" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 transition">History</a>
           <a routerLink="/emergency" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-red-600/60 hover:bg-red-600/80 transition">Emergency</a>
         </nav>
       </ng-template>
-      <div class="route-content p-4 md:p-6">
+
+      <div class="route-content flex-1 p-4 md:p-6 overflow-hidden">
         <router-outlet></router-outlet>
       </div>
+      
     </div>
   </main>
 </div>
