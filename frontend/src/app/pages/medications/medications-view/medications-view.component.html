@@ -29,7 +29,7 @@
     <h4>List</h4>
     <ul>
       <li *ngFor="let m of list">
-        {{m.name}} — {{m.dosage}} — {{m.frequency}} ({{m.times?.join(', ')}})
+        {{m.name}} — {{m.dosage}} — {{m.frequency}} ({{ m.times && m.times.length ? m.times.join(', ') : '' }})
         <button class="btn btn-link" (click)="remove(m)">Delete</button>
       </li>
     </ul>
