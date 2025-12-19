@@ -43,3 +43,72 @@ button {
 	.text-2xl { font-size: 1.5rem; }
 	.dashboard-grid { grid-template-columns: 1fr; }
 }
+
+
+/* Ensure the modal is truly on top of everything */
+.fixed.inset-0 {
+    z-index: 9999;
+}
+
+/* Prevent background scrolling when modal is open */
+:host-context(body:has(.fixed.inset-0)) {
+    overflow: hidden;
+}
+
+/* Smooth scaling animation for the modal */
+.max-w-sm {
+    animation: modalPop 0.25s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.9) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Updated Button Styles for a more modern look */
+.btn-confirm {
+    background: linear-gradient(to right, #22c55e, #16a34a);
+    border: none;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 5px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+}
+
+/* Alert Animation: Glow and subtle scale pulse */
+@keyframes alert-pulse-glow {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    transform: scale(1.03); /* Pop out slightly */
+    box-shadow: 0 0 30px 10px rgba(239, 68, 68, 0.4);
+    border-color: rgba(239, 68, 68, 1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+}
+
+.alert-card-pulse {
+  animation: alert-pulse-glow 2s infinite ease-in-out;
+  border-width: 2px !important;
+  z-index: 20; /* Ensure it stays above others */
+  position: relative;
+}
+
+/* Horizontal scroll container fix for animations */
+.overflow-x-auto {
+  padding-top: 15px;
+  padding-bottom: 25px;
+  /* ensure scale animation isn't clipped */
+}
