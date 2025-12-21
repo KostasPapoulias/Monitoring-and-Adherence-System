@@ -1,8 +1,10 @@
 :host {
-	display: block;
-	height: 100vh;
-  width: 100vw;
-  overflow: hidden;
+	:host,
+html, body {
+  overflow: hidden; // disables app-level scroll
+  height: 100%;
+  width: 100%;
+}
 }
 
 .app-shell {
@@ -85,4 +87,74 @@
 	.route-content {
 		padding: 12px;
 	}
+
+	html, body {
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+}
+
+.nav-btn {
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  transition: background 120ms;
+}
+
+.nav-btn.danger {
+  background: rgba(220,38,38,0.6);
+}
+
+/* PHONE CONTENT ONLY */
+.phone-content {
+  padding: 12px;
+  padding-bottom: 92px; // hard reserve space for fixed nav
+}
+
+/* FIXED BOTTOM NAV */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.12);
+
+  padding-bottom: env(safe-area-inset-bottom);
+
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+.bottom-nav a {
+  padding: 10px 0 8px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 11px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav a span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bottom-nav a.active {
+  color: #34d399;
+}
+
+.bottom-nav a.danger.active {
+  color: #f87171;
 }

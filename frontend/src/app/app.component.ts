@@ -9,58 +9,47 @@ import { PersonaModel } from './global/models/personas/persona.model';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
+
 export class AppComponent implements OnInit, OnDestroy {
   title = 'frontend';
   currentTime: string = '';
   private timeInterval: any;
+
   personas: PersonaModel[] = [];
   selectedPersona: PersonaModel | null = null;
-  useBurgerNav = false;
-  burgerOpen = false;
+
+  isPhoneMode = false;
   private pendingPersonaId: string | null = null;
 
-  constructor(private personasSvc: PersonasService, private personaState: PersonaStateService) {}
+  constructor(
+    private personasSvc: PersonasService,
+    private personaState: PersonaStateService
+  ) {}
 
   ngOnInit() {
     this.updateTime();
-    this.timeInterval = setInterval(() => {
-      this.updateTime();
-    }, 1000);
+    this.timeInterval = setInterval(() => this.updateTime(), 1000);
 
     this.personasSvc.list().subscribe(list => {
       this.personas = list;
-      const current = this.personaState.current() || (list[0]?._id ?? null);
+      const current = this.personaState.current() || list[0]?._id;
       if (current) {
-        if (!this.personaState.current()) {
-          this.personaState.set(current);
-        }
+        this.personaState.set(current);
         this.applyPersona(current);
-      }
-      if (this.pendingPersonaId) {
-        this.applyPersona(this.pendingPersonaId);
-        this.pendingPersonaId = null;
       }
     });
 
     this.personaState.get().subscribe(id => {
-      if (id) {
-        this.applyPersona(id);
-      }
+      if (id) this.applyPersona(id);
     });
   }
 
   ngOnDestroy() {
-    if (this.timeInterval) {
-      clearInterval(this.timeInterval);
-    }
+    clearInterval(this.timeInterval);
   }
 
   updateTime() {
     this.currentTime = new Date().toLocaleTimeString();
-  }
-
-  toggleBurger() {
-    this.burgerOpen = !this.burgerOpen;
   }
 
   private applyPersona(id: string) {
@@ -69,10 +58,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.pendingPersonaId = id;
       return;
     }
+
     this.selectedPersona = persona;
-    this.useBurgerNav = persona.devicePrefs?.primaryDevice === 'smartphone';
-    if (!this.useBurgerNav) {
-      this.burgerOpen = false;
-    }
+    this.isPhoneMode = persona.devicePrefs?.primaryDevice === 'smartphone';
   }
 }

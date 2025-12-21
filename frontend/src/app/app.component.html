@@ -1,54 +1,52 @@
 <div class="app-shell h-screen w-full overflow-hidden bg-neutral-900 text-neutral-100 flex flex-col">
-  
-  <header class="topbar flex-none flex items-center justify-between px-4 md:px-6 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
-    <div class="flex items-center gap-2">
-      <span class="uppercase tracking-widest text-lg md:text-xl text-neutral-200">Smart Wall</span>
-    </div>
-    <div class="flex items-center gap-4 text-neutral-300 text-sm md:text-base">
-      <span class="hidden sm:inline">Wi‑Fi</span>
-      <span class="font-medium text-lg md:text-2xl">{{ currentTime }}</span>
-    </div>
+
+  <header class="topbar flex-none flex items-center justify-between px-4 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
+    <span class="uppercase tracking-widest text-lg text-neutral-200">
+      Smart Wall
+    </span>
+    <span class="font-medium text-lg">
+      {{ currentTime }}
+    </span>
   </header>
 
   <main class="content-wrapper flex-1 min-h-0 overflow-hidden flex flex-col w-full">
-    <div class="content-panel h-full flex flex-col border-b border-white/10 bg-white/5 shadow-inner overflow-hidden w-full">
-      
-      <ng-container *ngIf="useBurgerNav; else desktopNav">
-        <div class="burger-nav p-3 border-b border-white/10 bg-black/30">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <button type="button" class="burger-toggle" (click)="toggleBurger()" aria-label="Toggle navigation">
-                <span></span><span></span><span></span>
-              </button>
-              <div class="leading-tight">
-                <div class="text-sm text-neutral-300">Menu</div>
-                <div class="font-semibold text-lg">{{ selectedPersona?.name || 'Navigation' }}</div>
-              </div>
-            </div>
-            <div class="text-sm text-neutral-300">{{ currentTime }}</div>
-          </div>
-          <div *ngIf="burgerOpen" class="burger-menu mt-3 flex flex-col gap-2">
-            <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="burger-link">Dashboard</a>
-            <a routerLink="/schedule" routerLinkActive="!bg-emerald-600" class="burger-link">Schedule</a>
-            <a routerLink="/history" routerLinkActive="!bg-emerald-600" class="burger-link">History</a>
-            <a routerLink="/emergency" routerLinkActive="!bg-red-600/70" class="burger-link danger">Emergency</a>
-          </div>
-        </div>
-      </ng-container>
+    <div class="content-panel h-full flex flex-col bg-white/5 overflow-hidden w-full">
 
-      <ng-template #desktopNav>
-        <nav class="primary-nav flex-none flex flex-wrap gap-2 p-3 border-b border-white/10 bg-black/20">
-          <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 transition">Dashboard</a>
-          <a routerLink="/schedule" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 transition">Schedule</a>
-          <a routerLink="/history" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-white/10 hover:bg-white/20 transition">History</a>
-          <a routerLink="/emergency" routerLinkActive="!bg-emerald-600" class="px-3 py-1.5 rounded bg-red-600/60 hover:bg-red-600/80 transition">Emergency</a>
-        </nav>
-      </ng-template>
+      <!-- WALL SCREEN NAV (UNCHANGED) -->
+      <nav *ngIf="!isPhoneMode"
+        class="primary-nav flex-none flex gap-2 p-3 border-b border-white/10 bg-black/20">
+        <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="nav-btn">Dashboard</a>
+        <a routerLink="/schedule" routerLinkActive="!bg-emerald-600" class="nav-btn">Schedule</a>
+        <a routerLink="/history" routerLinkActive="!bg-emerald-600" class="nav-btn">History</a>
+        <a routerLink="/emergency" routerLinkActive="!bg-red-600" class="nav-btn danger">Emergency</a>
+      </nav>
 
-      <div class="route-content flex-1 p-4 md:p-6 overflow-hidden">
+      <!-- CONTENT -->
+      <div class="route-content flex-1 overflow-hidden"
+           [class.phone-content]="isPhoneMode">
         <router-outlet></router-outlet>
       </div>
-      
+
+      <!-- PHONE BOTTOM NAV -->
+      <nav *ngIf="isPhoneMode" class="bottom-nav">
+        <a routerLink="/dashboard" routerLinkActive="active">
+          <span>🏠</span>
+          <small>Home</small>
+        </a>
+        <a routerLink="/schedule" routerLinkActive="active">
+          <span>📅</span>
+          <small>Schedule</small>
+        </a>
+        <a routerLink="/history" routerLinkActive="active">
+          <span>🕘</span>
+          <small>History</small>
+        </a>
+        <a routerLink="/emergency" routerLinkActive="active" class="danger">
+          <span>🚨</span>
+          <small>Emergency</small>
+        </a>
+      </nav>
+
     </div>
   </main>
 </div>

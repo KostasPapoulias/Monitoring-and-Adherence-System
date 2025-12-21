@@ -2,102 +2,113 @@
      [class.mobile-layout]="isMobile" 
      [class.wall-layout]="isWallDisplay && !isMobile">
   
-  <div class="flex-none flex items-center gap-3 mb-6 flex-wrap px-4">
-    <h1 class="m-0 text-3xl md:text-4xl font-bold tracking-tight">Dashboard</h1>
-    <select class="ml-auto bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-base w-full md:w-auto focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
-            [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
-      <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
-    </select>
-  </div>
+  <div class="flex-none flex items-center gap-3 mb-4 flex-wrap px-4">
+  <h1 class="m-0 text-3xl md:text-4xl font-bold tracking-tight">Dashboard</h1>
+  <select class="ml-auto bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-base w-full md:w-auto focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
+          [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
+    <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
+  </select>
+</div>
+
 
   <video #bgVideo playsinline muted width="320" height="240"
       class="absolute opacity-0 pointer-events-none" style="left:-9999px; top:-9999px;"></video>
 
-  <div class="flex-1 min-h-0 overflow-hidden px-4">
+  <div class="flex-1 flex flex-col overflow-hidden">
+  <div *ngIf="viewMode === 'detailed'" class="flex-1 flex flex-col">
     
-    <div *ngIf="isWallDisplay && !isMobile" class="h-full flex flex-col">
-      <div *ngIf="viewMode === 'general'" class="mb-4 p-6 rounded-3xl border border-white/10 bg-white/5 animate-fade-in">
-        <h2 class="text-3xl mb-2 text-emerald-400 font-bold">Welcome</h2>
-        <p class="text-lg text-white/60">Step closer so we can show your medication schedule.</p>
+    <!-- Status Message -->
+    <div [ngClass]="statusMessage.class" class="flex-none mb-6 p-4 rounded-2xl border transition-all duration-500 bg-white/5 border-white/10">
+      <div class="flex items-center gap-3">
+        <div *ngIf="isActionable(todaysMeds[0])" class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
+        <h3 class="m-0 text-xl md:text-2xl font-bold tracking-wide">{{ statusMessage.text }}</h3>
       </div>
+    </div>
 
-      <div *ngIf="viewMode === 'detailed'" class="h-full flex flex-col overflow-hidden">
-        <h2 class="text-3xl mb-1 flex-none font-bold">Hello, {{ detailedPersona ? detailedPersona.name : '' }}</h2>
-        <p class="text-lg mb-6 flex-none text-white/50">Here is your daily medication plan:</p>
+    <!-- Mobile: Vertical Scroll -->
+<div *ngIf="isMobile" class="flex-none flex flex-row gap-4 overflow-x-auto pb-4 snap-x snap-mandatory custom-scrollbar">
+      <div *ngFor="let m of todaysMeds.slice(0,10)"
+           class="group flex flex-none items-center gap-4 p-4 rounded-2xl min-w-[320px] md:min-w-[400px] cursor-pointer snap-start transition-all"
+           [ngClass]="cardClass(m)"
+           (click)="onCardClick(m)">
+       
+    <!-- Card content (time, name, dose, alert) -->
+    <div class="flex-none w-20 text-center">
+      <span class="font-mono text-lg block"
+            [class.text-red-400]="hasAlertActive(m)"
+            [class.text-emerald-400]="!hasAlertActive(m)">
+        {{ getNextScheduledDate(m) | date:'HH:mm' }}
+      </span>
+      <span class="text-[10px] text-white/30 uppercase tracking-tighter font-bold">Scheduled</span>
+    </div>
 
-        <div [ngClass]="statusMessage.class" class="flex-none mb-8 p-6 rounded-2xl border transition-all duration-500 bg-white/5 border-white/10">
-          <div class="flex items-center gap-4">
-            <div *ngIf="isActionable(todaysMeds[0])" class="w-3 h-3 bg-emerald-500 rounded-full animate-ping"></div>
-            <h3 class="m-0 text-2xl font-bold tracking-wide">{{ statusMessage.text }}</h3>
-          </div>
+    <div class="h-12 w-0.5 bg-white/10 transition-colors"
+         [class.bg-red-500]="hasAlertActive(m)"></div>
+
+    <div class="flex-1">
+      <div class="flex items-center gap-2">
+        <h4 class="text-lg font-bold m-0 text-inherit">{{m.name}}</h4>
+        <div *ngIf="hasAlertActive(m)"
+             class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-black uppercase tracking-widest animate-pulse border border-white/20">
+          DUE NOW
         </div>
-
-  <div class="flex-none flex flex-row gap-4 overflow-x-auto pb-6 pt-2 custom-scrollbar snap-x snap-mandatory">
-  
-<div *ngFor="let m of todaysMeds.slice(0, 10)" 
-     class="group flex flex-none items-center gap-6 p-5 rounded-2xl transition-all cursor-pointer snap-start min-w-[400px] md:min-w-[450px]"
-     [ngClass]="cardClass(m)" 
-     (click)="onCardClick(m)">
-  
-  <div class="time-badge flex-none w-24 text-center">
-    <span class="font-mono text-2xl block" 
-          [class.text-red-400]="hasAlertActive(m)"
-          [class.text-emerald-400]="!hasAlertActive(m)">
-      {{ getNextScheduledDate(m) | date:'HH:mm' }}
-    </span>
-    <span class="text-[10px] text-white/30 uppercase tracking-tighter font-bold">Scheduled</span>
-  </div>
-  
-  <div class="h-12 w-0.5 transition-colors"
-       [class.bg-red-500]="hasAlertActive(m)"
-       [class.bg-white-10]="!hasAlertActive(m)"></div>
-
-  <div class="flex-1">
-    <div class="flex items-center gap-2">
-      <h4 class="text-xl font-bold m-0 text-inherit">{{m.name}}</h4>
-      
-      <div *ngIf="hasAlertActive(m)" 
-           class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-black uppercase tracking-widest animate-pulse border border-white/20">
-        DUE NOW
+      </div>
+      <div class="flex gap-2 mt-1 text-sm opacity-80 text-inherit">
+        <span><strong>Dose:</strong> {{m.dosage}}</span>
       </div>
     </div>
-    <div class="flex gap-4 mt-1 text-sm opacity-80 text-inherit">
-      <span><strong>Dose:</strong> {{m.dosage}}</span>
-    </div>
-  </div>
-
-  <div class="opacity-40 group-hover:opacity-100 transition-opacity pr-2">
-     <div class="p-2 rounded-full bg-white/10 text-inherit">
-       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-         <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-       </svg>
-     </div>
   </div>
 </div>
 
-        </div>
-      </div>
-    </div>
 
-    <div *ngIf="!isWallDisplay || isMobile" class="h-full flex flex-col px-2">
-      <h2 class="text-2xl mb-4 flex-none font-bold">Today</h2>
-      <div class="flex-1 space-y-3 overflow-hidden">
-        <div *ngFor="let m of todaysMeds.slice(0, 5)"
-             class="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/10 transition-all active:scale-95"
-             (click)="onCardClick(m)">
-          <div class="font-mono text-emerald-400 text-lg">{{ getNextScheduledDate(m) | date:'HH:mm' }}</div>
-          <div class="flex-1">
-            <div class="font-bold">{{m.name}}</div>
-            <div class="text-xs text-white/50">{{m.dosage}}</div>
+    <!-- Horizontal Scroll Cards -->
+    <div *ngIf="!isMobile" class="flex-none flex flex-row gap-4 overflow-x-auto pb-4 snap-x snap-mandatory custom-scrollbar">
+      <div *ngFor="let m of todaysMeds.slice(0,10)"
+           class="group flex flex-none items-center gap-4 p-4 rounded-2xl min-w-[320px] md:min-w-[400px] cursor-pointer snap-start transition-all"
+           [ngClass]="cardClass(m)"
+           (click)="onCardClick(m)">
+
+        <!-- Time Badge -->
+        <div class="flex-none w-20 text-center">
+          <span class="font-mono text-lg md:text-2xl block"
+                [class.text-red-400]="hasAlertActive(m)"
+                [class.text-emerald-400]="!hasAlertActive(m)">
+            {{ getNextScheduledDate(m) | date:'HH:mm' }}
+          </span>
+          <span class="text-[10px] text-white/30 uppercase tracking-tighter font-bold">Scheduled</span>
+        </div>
+
+        <div class="h-12 w-0.5 transition-colors"
+             [class.bg-red-500]="hasAlertActive(m)"
+             [class.bg-white-10]="!hasAlertActive(m)"></div>
+
+        <div class="flex-1">
+          <div class="flex items-center gap-2">
+            <h4 class="text-lg md:text-xl font-bold m-0 text-inherit">{{m.name}}</h4>
+            <div *ngIf="hasAlertActive(m)" 
+                 class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-black uppercase tracking-widest animate-pulse border border-white/20">
+              DUE NOW
+            </div>
+          </div>
+          <div class="flex gap-2 mt-1 text-sm opacity-80 text-inherit">
+            <span><strong>Dose:</strong> {{m.dosage}}</span>
+          </div>
+        </div>
+
+        <div class="opacity-40 group-hover:opacity-100 transition-opacity pr-2">
+          <div class="p-2 rounded-full bg-white/10 text-inherit">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+            </svg>
           </div>
         </div>
       </div>
     </div>
 
-    <div *ngIf="selectedMedication"
+<div *ngIf="selectedMedication"
      class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
      (click)="closeAction()">
-  
+
   <div class="bg-slate-900 border border-white/20 rounded-3xl shadow-2xl w-full max-w-md overflow-hidden transform transition-all" 
        (click)="$event.stopPropagation()">
     
@@ -107,26 +118,14 @@
       <p class="text-white/50 mb-8">{{ selectedMedication.dosage }} • Scheduled at {{ selectedScheduledAt | date:'HH:mm' }}</p>
       
       <div class="flex flex-col gap-4">
-        <button class="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-black font-black rounded-2xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95" 
-                (click)="confirmSelected()">
-          CONFIRM DOSE
-        </button>
-        
+        <button class="btn-confirm w-full py-5 active:scale-95" (click)="confirmSelected()">CONFIRM DOSE</button>
         <div class="flex gap-3">
           <button class="flex-1 py-4 bg-white/5 hover:bg-white/10 text-white font-bold rounded-2xl border border-white/10 transition-all active:scale-95" 
-                  (click)="postponeSelected(5)">
-            Postpone 5m
-          </button>
+                  (click)="postponeSelected(5)">Postpone 5m</button>
           <button class="flex-1 py-4 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold rounded-2xl border border-red-500/20 transition-all" 
-                  (click)="closeAction()">
-            Cancel
-          </button>
+                  (click)="closeAction()">Cancel</button>
         </div>
       </div>
     </div>
-  </div>
-</div>
-
-
   </div>
 </div>

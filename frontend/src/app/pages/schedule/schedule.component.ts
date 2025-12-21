@@ -12,6 +12,8 @@ import { MOCK_PERSONAS, MOCK_MEDICATIONS } from 'src/app/global/mock/mock-data';
   styleUrls: ['./schedule.component.scss']
 })
 export class ScheduleComponent implements OnInit {
+  isMobile = false;
+  isWallDisplay = true;
   view: 'day' | 'week' | 'month' = 'day';
   medications: MedicationModel[] = [];
   personas: PersonaModel[] = [];
@@ -30,6 +32,8 @@ export class ScheduleComponent implements OnInit {
     //   const stored = this.personaState.current() || (list[0]?._id ?? null);
     //   if (stored) { this.onPersonaChange(stored); }
     // });
+      this.isMobile = window.innerWidth <= 768;
+
     this.personas = [...(MOCK_PERSONAS as any[])];
     {
       const stored = this.personaState.current() || (this.personas[0]?._id ?? null);
