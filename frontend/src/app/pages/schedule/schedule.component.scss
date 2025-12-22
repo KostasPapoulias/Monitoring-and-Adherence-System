@@ -34,6 +34,12 @@
     .schedule-header h1 { font-size: 18px !important; line-height: 1.1 !important; }
     .tab-btn { padding: 0.55rem 0.6rem; font-weight: 900; border-radius: 0.9rem; }
 
+    select {
+      padding: 8px 10px !important;
+      font-size: 11px !important;
+      border-radius: 16px !important;
+    }
+
     /* reduce vertical chrome on watch */
     .schedule-header { margin-bottom: 8px !important; }
     .schedule-body > div { padding: 10px !important; border-radius: 16px !important; }
@@ -49,6 +55,23 @@
 
     .time-badge span:first-child {
       font-size: 0.95rem;
+    }
+
+    /* watch: tighten Day + Week card composition */
+    .watch-day-card {
+      padding: 12px !important;
+    }
+
+    .watch-day-card .time-badge span {
+      line-height: 1.05;
+    }
+
+    .watch-week-card {
+      padding: 12px !important;
+    }
+
+    .watch-week-chip {
+      flex: 0 0 auto;
     }
 
     .watch-med-arrow {

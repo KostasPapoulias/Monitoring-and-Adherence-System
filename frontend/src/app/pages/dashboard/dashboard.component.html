@@ -8,7 +8,7 @@
           [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
     <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
   </select>
-</div>
+  </div>
 
 
   <video #bgVideo playsinline muted width="320" height="240"

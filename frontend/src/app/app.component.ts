@@ -1,4 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { PersonasService } from './global/services/personas/personas.service';
 import { PersonaStateService } from './global/services/personas/persona-state.service';
@@ -31,8 +32,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   constructor(
     private personasSvc: PersonasService,
-    private personaState: PersonaStateService
+    private personaState: PersonaStateService,
+    private router: Router
   ) {}
+
+  private readonly watchRouteOrder = ['/dashboard', '/schedule', '/history', '/emergency'];
 
   ngOnInit() {
     this.updateTime();
@@ -87,5 +91,24 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // Compact mode removes the top "wall" nav and uses the bottom nav.
     this.isCompactMode = this.isPhoneMode || this.isWatchMode || this.isSpeakerMode;
+  }
+
+  watchPrev() {
+    const next = this.resolveWatchTarget(-1);
+    this.router.navigateByUrl(next);
+  }
+
+  watchNext() {
+    const next = this.resolveWatchTarget(+1);
+    this.router.navigateByUrl(next);
+  }
+
+  private resolveWatchTarget(delta: -1 | 1): string {
+    const path = (this.router.url || '').split('?')[0].split('#')[0] || '/dashboard';
+    const idx = this.watchRouteOrder.indexOf(path);
+    if (idx === -1) return this.watchRouteOrder[0];
+
+    const nextIdx = (idx + delta + this.watchRouteOrder.length) % this.watchRouteOrder.length;
+    return this.watchRouteOrder[nextIdx];
   }
 }

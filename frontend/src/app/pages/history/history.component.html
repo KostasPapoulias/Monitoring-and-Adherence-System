@@ -10,36 +10,36 @@
 
   <!-- KPI STRIP (compact) -->
   <div class="kpi-grid grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
-    <div class="kpi p-3 md:p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-      <div class="text-emerald-300/90 text-[10px] uppercase font-black tracking-widest">Taken</div>
-      <div class="text-xl md:text-4xl font-black text-white leading-none mt-1">{{summary.taken}}</div>
+    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+      <div *ngIf="deviceMode !== 'smartwatch'" class="text-emerald-300/90 text-[9px] uppercase font-black tracking-widest">Taken</div>
+      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{summary.taken}}</div>
     </div>
-    <div class="kpi p-3 md:p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
-      <div class="text-red-300/90 text-[10px] uppercase font-black tracking-widest">Missed</div>
-      <div class="text-xl md:text-4xl font-black text-white leading-none mt-1">{{summary.missed}}</div>
+    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-red-500/10 border border-red-500/20">
+      <div *ngIf="deviceMode !== 'smartwatch'" class="text-red-300/90 text-[9px] uppercase font-black tracking-widest">Missed</div>
+      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{summary.missed}}</div>
     </div>
-    <div class="kpi p-3 md:p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-      <div class="text-yellow-300/90 text-[10px] uppercase font-black tracking-widest">Postponed</div>
-      <div class="text-xl md:text-4xl font-black text-white leading-none mt-1">{{summary.postponed}}</div>
+    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
+      <div *ngIf="deviceMode !== 'smartwatch'" class="text-yellow-300/90 text-[9px] uppercase font-black tracking-widest">Postponed</div>
+      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{summary.postponed}}</div>
     </div>
 
-    <div class="kpi p-3 md:p-4 rounded-2xl bg-white/5 border border-white/10">
-      <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">Adherence</div>
+    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-white/5 border border-white/10">
+      <div *ngIf="deviceMode !== 'smartwatch'" class="text-white/70 text-[9px] uppercase font-black tracking-widest">Adherence</div>
       <div class="flex items-end justify-between gap-3 mt-1">
-        <div class="text-xl md:text-4xl font-black text-white leading-none">{{adherenceRatePct}}%</div>
-        <div class="text-right text-[10px] leading-tight text-white/50">
+        <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none">{{adherenceRatePct}}%</div>
+        <div *ngIf="deviceMode !== 'smartwatch'" class="kpi-meta text-right text-[10px] leading-tight text-white/50">
           <div *ngIf="avgConfirmDelayMin !== null">Avg: <span class="text-white/80 font-mono">{{avgConfirmDelayMin}}m</span></div>
           <div *ngIf="lastActionAt">Last: <span class="text-white/80 font-mono">{{lastActionAt | date:'MMM d, HH:mm'}}</span></div>
         </div>
       </div>
-      <div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+      <div class="kpi-progress mt-2 h-1 rounded-full bg-white/10 overflow-hidden">
         <div class="h-full bg-emerald-500/70" [style.width.%]="adherenceRatePct"></div>
       </div>
     </div>
   </div>
 
   <div class="history-body grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 flex-1 min-h-0">
-    <div class="meds-panel lg:col-span-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col min-h-0">
+    <div *ngIf="deviceMode !== 'smartwatch'" class="meds-panel lg:col-span-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col min-h-0">
       <div class="flex items-center justify-between mb-3">
         <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">By Medication</div>
         <div class="text-[10px] text-white/40">{{ medicationBreakdown.length }}</div>
@@ -64,12 +64,47 @@
     <div class="actions-panel lg:col-span-2 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0">
       <div class="flex items-center justify-between mb-3">
         <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">All Actions</div>
-        <div class="text-[10px] text-white/40">{{ events.length }}</div>
+        <div *ngIf="deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ events.length }}</div>
       </div>
 
       <div class="h-px bg-white/10 mb-3"></div>
  
-      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+      <!-- SMARTWATCH: one action at a time (pager) -->
+      <div *ngIf="deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
+        <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevEvent()" aria-label="Previous action">˄</button>
+        <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextEvent()" aria-label="Next action">˅</button>
+
+        <div *ngIf="currentEvent as e" class="h-full flex flex-col justify-center">
+          <div class="group p-4 rounded-2xl bg-black/20 border border-white/10">
+            <div class="flex items-center gap-3">
+              <div class="w-2 h-12 rounded-full transition-colors"
+                [ngClass]="{
+                  'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]': e.type === 'taken',
+                  'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]': e.type === 'missed',
+                  'bg-yellow-500': e.type === 'postponed'
+                }"></div>
+
+              <div class="min-w-0 flex-1">
+                <div class="text-xl font-mono text-white leading-none">{{e.scheduledAt | date:'HH:mm'}}</div>
+                <div class="text-[10px] text-white/40 uppercase font-bold">{{e.scheduledAt | date:'MMM d'}}</div>
+                <div class="mt-1 text-base font-black text-white truncate">{{e.medicationId}}</div>
+                <div *ngIf="e.type==='postponed' && e.postponeMinutes" class="text-[10px] text-white/50">+{{e.postponeMinutes}}m</div>
+              </div>
+            </div>
+
+            <div class="mt-3 flex items-center justify-center gap-2">
+              <button type="button" class="watch-type-btn" [class.active]="e.type==='taken'" (click)="setEventType(e,'taken')">T</button>
+              <button type="button" class="watch-type-btn" [class.active]="e.type==='postponed'" (click)="setEventType(e,'postponed')">P</button>
+              <button type="button" class="watch-type-btn" [class.active]="e.type==='missed'" (click)="setEventType(e,'missed')">M</button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!currentEvent" class="text-white/50 text-sm flex items-center justify-center h-full">No actions.</div>
+      </div>
+
+      <!-- NON-WATCH: list -->
+      <div *ngIf="deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
         <div class="space-y-2 md:space-y-3">
           <div *ngFor="let e of events" 
                class="group flex items-center gap-4 md:gap-6 p-3 md:p-4 rounded-2xl bg-black/20 border border-white/10 hover:bg-black/30 transition-all">
@@ -100,6 +135,12 @@
           <div *ngIf="e.confirmedAt" class="text-right hidden md:block">
             <span class="block text-[10px] text-white/30 uppercase font-bold">Confirmed At</span>
             <span class="text-xs text-emerald-400 font-mono">{{e.confirmedAt | date:'HH:mm'}}</span>
+          </div>
+
+          <div class="hidden md:flex items-center gap-1">
+            <button type="button" class="type-btn" [class.active]="e.type==='taken'" (click)="setEventType(e,'taken')">T</button>
+            <button type="button" class="type-btn" [class.active]="e.type==='postponed'" (click)="setEventType(e,'postponed')">P</button>
+            <button type="button" class="type-btn" [class.active]="e.type==='missed'" (click)="setEventType(e,'missed')">M</button>
           </div>
           
             <button *ngIf="e.type==='taken'" 

@@ -49,18 +49,26 @@
   }
 
   .kpi-grid {
-    gap: 8px !important;
-    margin-bottom: 10px !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
   }
 
   .kpi {
-    padding: 8px !important;
-    border-radius: 16px !important;
+    padding: 6px !important;
+    border-radius: 14px !important;
   }
 
   /* shrink the big numbers inside KPI cards */
-  .kpi > div:nth-child(2) {
-    font-size: 20px !important;
+  .kpi .kpi-value {
+    font-size: 14px !important;
+    margin-top: 0 !important;
+    line-height: 1 !important;
+  }
+
+  /* remove the progress bar on watch to save vertical space */
+  .kpi .kpi-progress {
+    display: none !important;
   }
 
   .meds-panel,
@@ -81,4 +89,68 @@
   .revoke-btn {
     display: none !important;
   }
+
+  .watch-med-arrow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 60;
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.35);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+    line-height: 1;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .watch-med-arrow:active {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .watch-med-arrow-up {
+    top: 6px;
+  }
+
+  .watch-med-arrow-down {
+    bottom: 6px;
+  }
+
+  .watch-type-btn {
+    width: 44px;
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .watch-type-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+.type-btn {
+  width: 32px;
+  height: 28px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 900;
+  font-size: 11px;
+}
+
+.type-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
 }

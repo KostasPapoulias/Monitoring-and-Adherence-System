@@ -18,6 +18,13 @@ export class HistoryComponent implements OnInit {
   summary: ReportSummaryModel = new ReportSummaryModel();
   personas: PersonaModel[] = [];
   selectedPersonaId: string | null = null;
+  selectedPersona: PersonaModel | null = null;
+
+  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
+  isCompactMode = false;
+  uiTextSize: 'small' | 'medium' | 'large' = 'medium';
+
+  eventIndex = 0;
 
   adherenceRatePct = 0;
   avgConfirmDelayMin: number | null = null;
@@ -31,7 +38,12 @@ export class HistoryComponent implements OnInit {
       this.personas = [...(MOCK_PERSONAS as any[])];
       const stored = this.personaState.current() || (this.personas[0]?._id ?? null);
       if (stored) { this.onPersonaChange(stored); this.refreshData(stored); }
-      this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
+      this.personaState.get().subscribe(id => {
+        if (id) {
+          this.onPersonaChange(id);
+          this.refreshData(id);
+        }
+      });
       return;
     }
 
@@ -40,22 +52,53 @@ export class HistoryComponent implements OnInit {
       const stored = this.personaState.current() || (list[0]?._id ?? null);
       if (stored) { this.onPersonaChange(stored); }
     });
-    this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
+    this.personaState.get().subscribe(id => {
+      if (id) {
+        this.onPersonaChange(id);
+        this.refreshData(id);
+      }
+    });
   }
 
-  onPersonaChange(id: string) { this.selectedPersonaId = id; this.personaState.set(id); }
+  onPersonaChange(id: string) {
+    this.selectedPersonaId = id;
+    this.personaState.set(id);
+    this.selectedPersona = this.personas.find(p => (p as any)._id === id) || null;
+    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
+    this.isCompactMode = this.deviceMode !== 'wall-display';
+    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as any) || 'medium';
+    this.eventIndex = 0;
+  }
+
+  get currentEvent(): AdherenceEventModel | null {
+    if (!this.events || this.events.length === 0) return null;
+    const idx = Math.min(Math.max(this.eventIndex, 0), this.events.length - 1);
+    return this.events[idx] || null;
+  }
+
+  prevEvent() {
+    if (!this.events || this.events.length === 0) return;
+    this.eventIndex = (this.eventIndex - 1 + this.events.length) % this.events.length;
+  }
+
+  nextEvent() {
+    if (!this.events || this.events.length === 0) return;
+    this.eventIndex = (this.eventIndex + 1) % this.events.length;
+  }
   private refreshData(userId: string) {
     if (environment.offline) {
       const all = (MOCK_ADHERENCE_EVENTS as any[]).filter(e => e.userId === userId);
       // newest first
       all.sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
       this.events = all.map(e => new AdherenceEventModel(e as any));
+      this.eventIndex = 0;
       this.computeAnalytics();
       return;
     }
 
     this.adherence.list({ userId }).subscribe(e => {
       this.events = e;
+      this.eventIndex = 0;
       this.computeAnalytics();
     });
     this.adherence.summary({ userId }).subscribe(s => {
@@ -119,5 +162,27 @@ export class HistoryComponent implements OnInit {
         const id = this.selectedPersonaId;
         if (id) this.refreshData(id);
       });
+  }
+
+  setEventType(e: AdherenceEventModel, type: 'taken' | 'postponed' | 'missed') {
+    if (!e) return;
+
+    // Online mode: we only support Taken->Postponed via existing API.
+    if (!environment.offline) {
+      if (type === 'postponed' && e.type === 'taken') {
+        this.cancelTaken(e);
+      }
+      return;
+    }
+
+    e.type = type as any;
+    if (type === 'postponed') {
+      (e as any).postponeMinutes = (e as any).postponeMinutes || 30;
+    } else {
+      delete (e as any).postponeMinutes;
+    }
+    // keep timestamps consistent for analytics display
+    e.confirmedAt = new Date().toISOString();
+    this.computeAnalytics();
   }
 }
