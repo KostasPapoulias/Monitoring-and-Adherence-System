@@ -1,6 +1,7 @@
 :host { 
   display: block; 
-  height: 100vh;
+  height: 100%;
+  min-height: 0;
   background: transparent;
 }
 
@@ -24,4 +25,60 @@
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(-10px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+/* SMARTWATCH MODE: make History fit cleanly */
+:host-context(.mode-watch) {
+  .dashboard-shell {
+    padding: 10px !important;
+  }
+
+  .history-header {
+    margin-bottom: 8px !important;
+  }
+
+  .history-header h1 {
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+  }
+
+  .history-header select {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .kpi-grid {
+    gap: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .kpi {
+    padding: 8px !important;
+    border-radius: 16px !important;
+  }
+
+  /* shrink the big numbers inside KPI cards */
+  .kpi > div:nth-child(2) {
+    font-size: 20px !important;
+  }
+
+  .meds-panel,
+  .actions-panel {
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .actions-panel .group {
+    padding: 10px !important;
+    gap: 12px !important;
+  }
+
+  .actions-panel .group .flex.gap-3.text-xs {
+    display: none !important;
+  }
+
+  .revoke-btn {
+    display: none !important;
+  }
 }

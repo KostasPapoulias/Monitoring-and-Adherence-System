@@ -13,6 +13,74 @@ html, body {
 	background: #0f172a;
 }
 
+/* SMARTWATCH BACKGROUND (bezel look) */
+.app-shell.mode-watch {
+	background:
+		radial-gradient(circle at 50% 35%, rgba(16, 185, 129, 0.14), transparent 52%),
+		radial-gradient(circle at 50% 120%, rgba(255, 255, 255, 0.06), transparent 55%),
+		radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.85) 60%),
+		#0f172a;
+	font-size: 11px;
+	line-height: 1.25;
+}
+
+/* WATCH: make common controls smaller by default */
+.mode-watch button,
+.mode-watch select,
+.mode-watch input {
+	font-size: 11px;
+}
+
+.mode-watch select {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.mode-watch .nav-btn {
+	padding: 5px 10px;
+	border-radius: 10px;
+}
+
+/* SMARTWATCH SIZE (simulate small watch viewport) */
+.app-shell.mode-watch .content-wrapper {
+	max-width: none;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 8px;
+}
+
+.app-shell.mode-watch .content-panel {
+	width: min(320px, 92vw);
+	height: min(320px, 92vw);
+	position: relative;
+	border-radius: 28px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(255, 255, 255, 0.04);
+	overflow: hidden;
+}
+
+.app-shell.mode-watch .route-content {
+	padding: 0;
+}
+
+.route-content {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Each routed component's host element must be allowed to shrink and scroll */
+.route-content > * {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	height: 100%;
+}
+
 .topbar {
 	position: sticky;
 	top: 0;
@@ -111,6 +179,16 @@ html, body {
   padding-bottom: 92px; // hard reserve space for fixed nav
 }
 
+.mode-watch .phone-content {
+	padding: 6px;
+	padding-bottom: 46px;
+}
+
+.mode-speaker .phone-content {
+	padding: 14px;
+	padding-bottom: 96px;
+}
+
 /* FIXED BOTTOM NAV */
 .bottom-nav {
   position: fixed;
@@ -130,6 +208,38 @@ html, body {
 
   touch-action: manipulation;
   overscroll-behavior: none;
+}
+
+/* WATCH: keep bottom nav inside the watch panel (not the browser window) */
+.app-shell.mode-watch .bottom-nav {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-top-left-radius: 18px;
+	border-top-right-radius: 18px;
+}
+
+.mode-watch .bottom-nav a {
+	padding: 6px 0 4px;
+	font-size: 9px;
+	gap: 2px;
+}
+
+.mode-watch .bottom-nav a span {
+	font-size: 18px;
+}
+
+.mode-watch .bottom-nav a small {
+	display: none;
+}
+
+.mode-speaker .bottom-nav a {
+	font-size: 12px;
+}
+
+.mode-speaker .bottom-nav a span {
+	font-size: 22px;
 }
 
 .bottom-nav a {

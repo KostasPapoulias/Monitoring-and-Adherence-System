@@ -1,34 +1,78 @@
-<div class="dashboard-shell h-full w-full flex flex-col p-6 overflow-hidden">
+<div class="dashboard-shell h-full w-full flex flex-col p-3 md:p-6 overflow-hidden">
   
-  <div class="flex items-center gap-4 mb-8 flex-wrap">
-    <h1 class="m-0 text-3xl font-bold tracking-tight">Adherence History</h1>
-    <select class="ml-auto bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-base focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
+  <div class="history-header flex items-center gap-3 mb-3 md:mb-5 flex-wrap">
+    <h1 class="m-0 text-xl md:text-3xl font-bold tracking-tight">History</h1>
+    <select class="ml-auto bg-white/5 border border-white/10 rounded-2xl px-3 py-2 text-sm md:text-base focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
             [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
       <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
     </select>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-    <div class="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-      <div class="text-emerald-400 text-xs uppercase font-bold tracking-widest mb-1">Total Taken</div>
-      <div class="text-4xl font-black text-white">{{summary.taken}}</div>
+  <!-- KPI STRIP (compact) -->
+  <div class="kpi-grid grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
+    <div class="kpi p-3 md:p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+      <div class="text-emerald-300/90 text-[10px] uppercase font-black tracking-widest">Taken</div>
+      <div class="text-xl md:text-4xl font-black text-white leading-none mt-1">{{summary.taken}}</div>
     </div>
-    <div class="p-6 rounded-2xl bg-red-500/10 border border-red-500/20">
-      <div class="text-red-400 text-xs uppercase font-bold tracking-widest mb-1">Total Missed</div>
-      <div class="text-4xl font-black text-white">{{summary.missed}}</div>
+    <div class="kpi p-3 md:p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
+      <div class="text-red-300/90 text-[10px] uppercase font-black tracking-widest">Missed</div>
+      <div class="text-xl md:text-4xl font-black text-white leading-none mt-1">{{summary.missed}}</div>
     </div>
-    <div class="p-6 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-      <div class="text-yellow-400 text-xs uppercase font-bold tracking-widest mb-1">Postponed</div>
-      <div class="text-4xl font-black text-white">{{summary.postponed}}</div>
+    <div class="kpi p-3 md:p-4 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
+      <div class="text-yellow-300/90 text-[10px] uppercase font-black tracking-widest">Postponed</div>
+      <div class="text-xl md:text-4xl font-black text-white leading-none mt-1">{{summary.postponed}}</div>
+    </div>
+
+    <div class="kpi p-3 md:p-4 rounded-2xl bg-white/5 border border-white/10">
+      <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">Adherence</div>
+      <div class="flex items-end justify-between gap-3 mt-1">
+        <div class="text-xl md:text-4xl font-black text-white leading-none">{{adherenceRatePct}}%</div>
+        <div class="text-right text-[10px] leading-tight text-white/50">
+          <div *ngIf="avgConfirmDelayMin !== null">Avg: <span class="text-white/80 font-mono">{{avgConfirmDelayMin}}m</span></div>
+          <div *ngIf="lastActionAt">Last: <span class="text-white/80 font-mono">{{lastActionAt | date:'MMM d, HH:mm'}}</span></div>
+        </div>
+      </div>
+      <div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div class="h-full bg-emerald-500/70" [style.width.%]="adherenceRatePct"></div>
+      </div>
     </div>
   </div>
 
-  <div class="h-px bg-white/10 mb-8"></div>
+  <div class="history-body grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 flex-1 min-h-0">
+    <div class="meds-panel lg:col-span-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col min-h-0">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">By Medication</div>
+        <div class="text-[10px] text-white/40">{{ medicationBreakdown.length }}</div>
+      </div>
+      <div *ngIf="medicationBreakdown.length === 0" class="text-white/50 text-sm">No events yet.</div>
 
-  <div class="flex-1 overflow-y-auto custom-scrollbar pr-2">
-    <div class="space-y-3">
-      <div *ngFor="let e of events" 
-           class="group flex items-center gap-6 p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+        <div *ngFor="let m of medicationBreakdown" class="py-3 border-t border-white/10 first:border-t-0">
+          <div class="flex items-center justify-between gap-3">
+            <div class="font-bold text-white truncate">{{m.medicationId}}</div>
+            <div class="text-[10px] text-white/60 font-mono">{{m.total}}</div>
+          </div>
+          <div class="mt-2 grid grid-cols-3 gap-2 text-[11px]">
+            <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-emerald-200">T: <span class="font-mono">{{m.taken}}</span></div>
+            <div class="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 text-yellow-200">P: <span class="font-mono">{{m.postponed}}</span></div>
+            <div class="rounded-xl bg-red-500/10 border border-red-500/20 px-2 py-1 text-red-200">M: <span class="font-mono">{{m.missed}}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-panel lg:col-span-2 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0">
+      <div class="flex items-center justify-between mb-3">
+        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">All Actions</div>
+        <div class="text-[10px] text-white/40">{{ events.length }}</div>
+      </div>
+
+      <div class="h-px bg-white/10 mb-3"></div>
+ 
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+        <div class="space-y-2 md:space-y-3">
+          <div *ngFor="let e of events" 
+               class="group flex items-center gap-4 md:gap-6 p-3 md:p-4 rounded-2xl bg-black/20 border border-white/10 hover:bg-black/30 transition-all">
         
         <div class="w-2 h-12 rounded-full transition-colors"
              [ngClass]="{
@@ -38,16 +82,17 @@
              }">
         </div>
 
-        <div class="flex-none w-28">
-          <span class="block text-lg font-mono text-white">{{e.scheduledAt | date:'HH:mm'}}</span>
+        <div class="flex-none w-24 md:w-28">
+          <span class="block text-sm md:text-lg font-mono text-white">{{e.scheduledAt | date:'HH:mm'}}</span>
           <span class="block text-[10px] text-white/40 uppercase font-bold">{{e.scheduledAt | date:'MMM d, y'}}</span>
         </div>
 
         <div class="flex-1 min-w-0">
-          <div class="text-lg font-bold text-white truncate">{{e.medicationId}}</div>
+          <div class="text-sm md:text-lg font-bold text-white truncate">{{e.medicationId}}</div>
           <div class="flex gap-3 text-xs text-white/50">
             <span>Method: <span class="text-white/80">{{e.method || 'Auto'}}</span></span>
             <span>Device: <span class="text-white/80">{{e.device || 'Wall'}}</span></span>
+            <span *ngIf="e.type==='postponed' && e.postponeMinutes">Postpone: <span class="text-white/80 font-mono">{{e.postponeMinutes}}m</span></span>
           </div>
         </div>
 
@@ -57,11 +102,13 @@
             <span class="text-xs text-emerald-400 font-mono">{{e.confirmedAt | date:'HH:mm'}}</span>
           </div>
           
-          <button *ngIf="e.type==='taken'" 
-                  class="px-4 py-2 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl text-xs font-bold transition-all"
+            <button *ngIf="e.type==='taken'" 
+              class="revoke-btn px-4 py-2 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl text-xs font-bold transition-all"
                   (click)="cancelTaken(e)">
             REVOKE
           </button>
+        </div>
+      </div>
         </div>
       </div>
     </div>

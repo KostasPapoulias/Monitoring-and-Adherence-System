@@ -30,6 +30,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   presence: PresenceState | null = null;
   isWallDisplay = false;
   isMobile = false;
+  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
   viewMode: 'general' | 'detailed' = 'general';
   detailedPersona: any = null;
   detailedMeds: any[] = [];
@@ -56,6 +57,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Default; will be overridden by persona device prefs
     this.isMobile = window.innerWidth <= 768;
     const qpPersona = this.route.snapshot.queryParamMap.get('personaId');
     if (qpPersona) {
@@ -104,9 +106,13 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.personaState.set(id);
     this.medStatuses.clear();
 
-    this.viewMode = 'detailed'; 
-  this.isWallDisplay = true;
-  this.detailedPersona = this.personas.find(p => p._id === id);
+    this.detailedPersona = this.personas.find(p => p._id === id);
+    this.deviceMode = (this.detailedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
+    const compact = this.deviceMode !== 'wall-display';
+    this.isWallDisplay = !compact;
+    this.isMobile = compact;
+
+    this.viewMode = 'detailed';
   }
 
   private async startBackgroundScan() {
@@ -231,10 +237,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   openAction(med: MedicationModel) {
-    if (!this.isActionable(med)) { return; }
     this.selectedMedication = med;
     this.selectedScheduledAt = this.getNextScheduledDate(med);
-    this.actionError = null;
+    this.actionError = this.isActionAllowed(med)
+      ? null
+      : 'This medication is not actionable yet. Please confirm closer to the scheduled time.';
   }
 
   closeAction() {
@@ -245,6 +252,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   confirmSelected() {
     if (!this.selectedMedication || !this.selectedScheduledAt) return;
+    if (!this.isActionAllowed(this.selectedMedication)) {
+      this.actionError = 'This medication is not actionable yet.';
+      return;
+    }
     // BACKEND PULL DISABLED: adherence confirm
     // const payload: any = { ... };
     // this.adherence.confirm(payload).subscribe({ ... });
@@ -256,6 +267,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   postponeSelected(minutes: number = 5) {
     if (!this.selectedMedication || !this.selectedScheduledAt) return;
+    if (!this.isActionAllowed(this.selectedMedication)) {
+      this.actionError = 'This medication is not actionable yet.';
+      return;
+    }
     // BACKEND PULL DISABLED: adherence postpone
     // const payload = { ... };
     // this.adherence.postpone(payload).subscribe({ ... });
@@ -286,10 +301,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return diffMin <= this.actionableWindowMinutes;
   }
 
+  isActionAllowed(med: MedicationModel): boolean {
+    return this.isActionable(med) || this.hasAlertActive(med);
+  }
+
   onCardClick(med: MedicationModel) {
-    if (this.isActionable(med)) {
-      this.openAction(med);
-    }
+    this.openAction(med);
   }
 
   cardClass(med: MedicationModel): string {

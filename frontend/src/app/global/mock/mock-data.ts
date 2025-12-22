@@ -79,3 +79,45 @@ export const MOCK_SUMMARY: ReportSummaryModel = {
 export const MOCK_POSTPONED: any[] = [
   { medicationId: 'm1', scheduledAt: new Date().toISOString(), type: 'postponed' }
 ];
+
+function daysAgoIso(daysAgo: number, hhmm: string): string {
+  const now = new Date();
+  const d = new Date(now);
+  d.setDate(now.getDate() - daysAgo);
+  const [hh, mm] = String(hhmm).split(':').map(x => parseInt(x, 10));
+  d.setHours(hh || 0, mm || 0, 0, 0);
+  return d.toISOString();
+}
+
+function addMinutesIso(iso: string, minutes: number): string {
+  return new Date(new Date(iso).getTime() + minutes * 60000).toISOString();
+}
+
+// Analytics-ready adherence history (frontend-only / offline)
+// NOTE: includes userId for filtering in UI.
+export const MOCK_ADHERENCE_EVENTS: any[] = [
+  // Eleni (wall-display)
+  { _id: 'e1', userId: '1', medicationId: 'ACE inhibitor', type: 'taken', scheduledAt: daysAgoIso(0, currentHHMM(-5)), confirmedAt: daysAgoIso(0, currentHHMM(-3)), method: 'touch', device: 'wall-display', withinWindow: true },
+  { _id: 'e2', userId: '1', medicationId: 'Beta blocker', type: 'taken', scheduledAt: daysAgoIso(1, '20:00'), confirmedAt: addMinutesIso(daysAgoIso(1, '20:00'), 2), method: 'touch', device: 'wall-display', withinWindow: true },
+  { _id: 'e3', userId: '1', medicationId: 'Diuretic', type: 'postponed', scheduledAt: daysAgoIso(2, '14:00'), confirmedAt: addMinutesIso(daysAgoIso(2, '14:00'), 15), postponeMinutes: 15, method: 'touch', device: 'wall-display', withinWindow: true },
+  { _id: 'e4', userId: '1', medicationId: 'Diuretic', type: 'taken', scheduledAt: daysAgoIso(2, '14:15'), confirmedAt: addMinutesIso(daysAgoIso(2, '14:15'), 3), method: 'touch', device: 'wall-display', withinWindow: true },
+  { _id: 'e5', userId: '1', medicationId: 'Beta blocker', type: 'missed', scheduledAt: daysAgoIso(4, '20:00'), method: 'touch', device: 'wall-display', withinWindow: false },
+
+  // Maria (smartphone)
+  { _id: 'm1', userId: '2', medicationId: 'Iron supplement', type: 'taken', scheduledAt: daysAgoIso(0, '09:00'), confirmedAt: addMinutesIso(daysAgoIso(0, '09:00'), 22), method: 'touch', device: 'smartphone', withinWindow: false },
+  { _id: 'm2', userId: '2', medicationId: 'Vitamin D', type: 'postponed', scheduledAt: daysAgoIso(1, '09:00'), confirmedAt: addMinutesIso(daysAgoIso(1, '09:00'), 10), postponeMinutes: 10, method: 'touch', device: 'smartphone', withinWindow: true },
+  { _id: 'm3', userId: '2', medicationId: 'Vitamin D', type: 'taken', scheduledAt: daysAgoIso(1, '09:10'), confirmedAt: addMinutesIso(daysAgoIso(1, '09:10'), 18), method: 'touch', device: 'smartphone', withinWindow: false },
+  { _id: 'm4', userId: '2', medicationId: 'Iron supplement', type: 'missed', scheduledAt: daysAgoIso(3, '09:00'), method: 'touch', device: 'smartphone', withinWindow: false },
+  { _id: 'm5', userId: '2', medicationId: 'Vitamin D', type: 'taken', scheduledAt: daysAgoIso(5, '09:00'), confirmedAt: addMinutesIso(daysAgoIso(5, '09:00'), 4), method: 'touch', device: 'smartphone', withinWindow: true },
+
+  // Sofia (family / speaker)
+  { _id: 's1', userId: '3', medicationId: 'Antibiotic', type: 'taken', scheduledAt: daysAgoIso(0, '08:00'), confirmedAt: addMinutesIso(daysAgoIso(0, '08:00'), 1), method: 'voice', device: 'smart-speaker', withinWindow: true },
+  { _id: 's2', userId: '3', medicationId: 'Syrup', type: 'taken', scheduledAt: daysAgoIso(0, '20:00'), confirmedAt: addMinutesIso(daysAgoIso(0, '20:00'), 2), method: 'voice', device: 'smart-speaker', withinWindow: true },
+  { _id: 's3', userId: '3', medicationId: 'Antibiotic', type: 'postponed', scheduledAt: daysAgoIso(2, '20:00'), confirmedAt: addMinutesIso(daysAgoIso(2, '20:00'), 5), postponeMinutes: 5, method: 'voice', device: 'smart-speaker', withinWindow: true },
+  { _id: 's4', userId: '3', medicationId: 'Antibiotic', type: 'taken', scheduledAt: daysAgoIso(2, '20:05'), confirmedAt: addMinutesIso(daysAgoIso(2, '20:05'), 1), method: 'voice', device: 'smart-speaker', withinWindow: true },
+
+  // Andreas (smartwatch)
+  { _id: 'a1', userId: '4', medicationId: 'Preventive inhaler', type: 'taken', scheduledAt: daysAgoIso(0, '07:30'), confirmedAt: addMinutesIso(daysAgoIso(0, '07:30'), 0), method: 'gesture', device: 'smartwatch', withinWindow: true },
+  { _id: 'a2', userId: '4', medicationId: 'Vitamin B complex', type: 'taken', scheduledAt: daysAgoIso(1, '08:00'), confirmedAt: addMinutesIso(daysAgoIso(1, '08:00'), 6), method: 'touch', device: 'smartwatch', withinWindow: true },
+  { _id: 'a3', userId: '4', medicationId: 'Preventive inhaler', type: 'missed', scheduledAt: daysAgoIso(3, '07:30'), method: 'gesture', device: 'smartwatch', withinWindow: false }
+];

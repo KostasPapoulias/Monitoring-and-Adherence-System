@@ -3,6 +3,35 @@
   flex-direction: column;
   height: 100%;
 
+  &.compact-mode {
+    .patient-select {
+      padding-top: 0.75rem;
+    }
+  }
+
+  &.watch-mode {
+    .patient-select h2 { font-size: 1.25rem; }
+    .tab-btn { padding: 0.55rem 0.6rem; font-weight: 900; border-radius: 0.9rem; }
+
+    .mobile-day .group {
+      padding: 12px !important;
+      gap: 10px !important;
+    }
+
+    .time-badge span:first-child {
+      font-size: 0.95rem;
+    }
+  }
+
+  &.speaker-mode {
+    .patient-select h2 { font-size: 2.25rem; }
+  }
+
+  &.text-large {
+    h2 { letter-spacing: -0.02em; }
+    .tab-btn { padding: 0.9rem 1.1rem; }
+  }
+
   .patient-select {
     flex-shrink: 0;
     width: 100%;
@@ -25,21 +54,15 @@
   }
 
   .tab-btn {
-    padding: 0.6rem 1rem;
-    border-radius: 0.85rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.4);
-    transition: all 0.2s ease;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
     cursor: pointer;
     flex: 1;
     text-align: center;
+    min-width: 0;
 
-    &:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.03); }
-
-    &.active-tab {
-      background: #10b981;
-      color: white;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    }
+    &:active { transform: scale(0.98); }
   }
 }

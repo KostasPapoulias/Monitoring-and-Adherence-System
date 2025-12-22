@@ -14,10 +14,14 @@ import { MOCK_PERSONAS, MOCK_MEDICATIONS } from 'src/app/global/mock/mock-data';
 export class ScheduleComponent implements OnInit {
   isMobile = false;
   isWallDisplay = true;
+  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
+  isCompactMode = false;
+  uiTextSize: 'small' | 'medium' | 'large' = 'medium';
   view: 'day' | 'week' | 'month' = 'day';
   medications: MedicationModel[] = [];
   personas: PersonaModel[] = [];
   selectedPersonaId: string | null = null;
+  selectedPersona: PersonaModel | null = null;
 
   constructor(
     private meds: MedicationsService,
@@ -46,6 +50,13 @@ export class ScheduleComponent implements OnInit {
   onPersonaChange(id: string) {
     this.selectedPersonaId = id;
     this.personaState.set(id);
+    this.selectedPersona = this.personas.find(p => p._id === id) || null;
+    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
+    this.isCompactMode = this.deviceMode !== 'wall-display';
+    // Drive layout by persona device (not by window width)
+    this.isMobile = this.isCompactMode;
+    this.isWallDisplay = !this.isCompactMode;
+    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as any) || 'medium';
     this.refreshData(id);
   }
 
@@ -55,5 +66,27 @@ export class ScheduleComponent implements OnInit {
     // BACKEND PULL DISABLED: medications list
     // this.meds.getAll().subscribe(ms => this.medications = ms.filter(m => m.userId === userId));
     this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
+  }
+
+  getNextDoseTime(med: MedicationModel): string {
+    const now = new Date();
+    const times = (med.times || []).filter(Boolean);
+    if (times.length === 0) return '--:--';
+
+    const candidates = times
+      .map(t => {
+        const [hh, mm] = String(t).split(':').map(x => parseInt(x, 10));
+        const dt = new Date(now);
+        dt.setHours(hh || 0, mm || 0, 0, 0);
+        return { t: String(t), dt };
+      })
+      .sort((a, b) => a.dt.getTime() - b.dt.getTime());
+
+    const upcoming = candidates.find(c => c.dt.getTime() >= now.getTime());
+    return (upcoming || candidates[0]).t;
+  }
+
+  doseCount(med: MedicationModel): number {
+    return (med.times || []).length;
   }
 }

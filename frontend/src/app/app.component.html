@@ -1,6 +1,10 @@
-<div class="app-shell h-screen w-full overflow-hidden bg-neutral-900 text-neutral-100 flex flex-col">
+<div class="app-shell h-screen w-full overflow-hidden bg-neutral-900 text-neutral-100 flex flex-col"
+  [class.mode-wall]="isWallMode"
+  [class.mode-phone]="isPhoneMode"
+  [class.mode-watch]="isWatchMode"
+  [class.mode-speaker]="isSpeakerMode">
 
-  <header class="topbar flex-none flex items-center justify-between px-4 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
+  <header *ngIf="!isWatchMode" class="topbar flex-none flex items-center justify-between px-4 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
     <span class="uppercase tracking-widest text-lg text-neutral-200">
       Smart Wall
     </span>
@@ -13,7 +17,7 @@
     <div class="content-panel h-full flex flex-col bg-white/5 overflow-hidden w-full">
 
       <!-- WALL SCREEN NAV (UNCHANGED) -->
-      <nav *ngIf="!isPhoneMode"
+      <nav *ngIf="!isCompactMode"
         class="primary-nav flex-none flex gap-2 p-3 border-b border-white/10 bg-black/20">
         <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="nav-btn">Dashboard</a>
         <a routerLink="/schedule" routerLinkActive="!bg-emerald-600" class="nav-btn">Schedule</a>
@@ -22,13 +26,13 @@
       </nav>
 
       <!-- CONTENT -->
-      <div class="route-content flex-1 overflow-hidden"
-           [class.phone-content]="isPhoneMode">
+      <div class="route-content flex-1 min-h-0 overflow-y-auto"
+           [class.phone-content]="isCompactMode">
         <router-outlet></router-outlet>
       </div>
 
       <!-- PHONE BOTTOM NAV -->
-      <nav *ngIf="isPhoneMode" class="bottom-nav">
+      <nav *ngIf="isCompactMode" class="bottom-nav">
         <a routerLink="/dashboard" routerLinkActive="active">
           <span>🏠</span>
           <small>Home</small>
