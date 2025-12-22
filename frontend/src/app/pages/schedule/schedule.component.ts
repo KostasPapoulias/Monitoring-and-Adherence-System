@@ -19,6 +19,7 @@ export class ScheduleComponent implements OnInit {
   uiTextSize: 'small' | 'medium' | 'large' = 'medium';
   view: 'day' | 'week' | 'month' = 'day';
   medications: MedicationModel[] = [];
+  medIndex = 0;
   personas: PersonaModel[] = [];
   selectedPersonaId: string | null = null;
   selectedPersona: PersonaModel | null = null;
@@ -58,6 +59,7 @@ export class ScheduleComponent implements OnInit {
     this.isWallDisplay = !this.isCompactMode;
     this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as any) || 'medium';
     this.refreshData(id);
+    this.medIndex = 0;
   }
 
   setView(v: 'day' | 'week' | 'month') { this.view = v; }
@@ -66,6 +68,23 @@ export class ScheduleComponent implements OnInit {
     // BACKEND PULL DISABLED: medications list
     // this.meds.getAll().subscribe(ms => this.medications = ms.filter(m => m.userId === userId));
     this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
+    if (this.medIndex >= this.medications.length) this.medIndex = 0;
+  }
+
+  get currentMed(): MedicationModel | null {
+    return this.medications[this.medIndex] || null;
+  }
+
+  prevMed() {
+    const len = this.medications.length;
+    if (len === 0) return;
+    this.medIndex = (this.medIndex - 1 + len) % len;
+  }
+
+  nextMed() {
+    const len = this.medications.length;
+    if (len === 0) return;
+    this.medIndex = (this.medIndex + 1) % len;
   }
 
   getNextDoseTime(med: MedicationModel): string {

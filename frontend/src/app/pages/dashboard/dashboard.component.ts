@@ -35,6 +35,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   detailedPersona: any = null;
   detailedMeds: any[] = [];
   todaysMeds: MedicationModel[] = [];
+  watchMedIndex = 0;
   scanning = false;
   proximity: 'near' | 'far' | null = null;
   private stream: MediaStream | null = null;
@@ -113,6 +114,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.isMobile = compact;
 
     this.viewMode = 'detailed';
+    this.watchMedIndex = 0;
   }
 
   private async startBackgroundScan() {
@@ -194,6 +196,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     // this.adherence.list({ userId, type: 'postponed' }).subscribe(evts => this.postponedEvents = evts || []);
     this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
     this.computeTodaysMeds();
+    this.watchMedIndex = 0;
     this.summary = { ...(MOCK_SUMMARY as any) };
     this.postponedEvents = [...(MOCK_POSTPONED as any[])];
     this.computeNextMedication();
@@ -201,18 +204,60 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   private computeTodaysMeds() {
     const now = new Date();
-    const todayMeds: { med: MedicationModel; time: string; date: Date }[] = [];
+    const byMed = new Map<string, { med: MedicationModel; earliest: Date }>();
     for (const m of this.medications) {
+      const key = m._id || m.name;
       for (const t of m.times || []) {
         const [hh, mm] = t.split(':').map(x => parseInt(x, 10));
         const dt = new Date(now);
         dt.setHours(hh || 0, mm || 0, 0, 0);
-        todayMeds.push({ med: m, time: t, date: dt });
+        const existing = byMed.get(key);
+        if (!existing || dt.getTime() < existing.earliest.getTime()) {
+          byMed.set(key, { med: m, earliest: dt });
+        }
+      }
+      if ((m.times || []).length === 0 && !byMed.has(key)) {
+        byMed.set(key, { med: m, earliest: new Date(now) });
       }
     }
-    // sort by earliest time
-    todayMeds.sort((a, b) => a.date.getTime() - b.date.getTime());
-    this.todaysMeds = todayMeds.map(tm => tm.med);
+    this.todaysMeds = Array.from(byMed.values())
+      .sort((a, b) => a.earliest.getTime() - b.earliest.getTime())
+      .map(x => x.med);
+  }
+
+  get watchMed(): MedicationModel | null {
+    return this.todaysMeds[this.watchMedIndex] || null;
+  }
+
+  watchPrevMed() {
+    const len = this.todaysMeds.length;
+    if (len === 0) return;
+    this.watchMedIndex = (this.watchMedIndex - 1 + len) % len;
+  }
+
+  watchNextMed() {
+    const len = this.todaysMeds.length;
+    if (len === 0) return;
+    this.watchMedIndex = (this.watchMedIndex + 1) % len;
+  }
+
+  medStatusFor(med: MedicationModel): { text: string; class: string } {
+    const id = med._id || '';
+    const status = id ? this.medStatuses.get(id) : undefined;
+
+    if (this.hasAlertActive(med)) {
+      return { text: 'Alert', class: 'bg-red-600/20 border-red-500 text-red-200' };
+    }
+    if (status === 'confirmed') {
+      return { text: 'Done', class: 'bg-emerald-600/20 border-emerald-500 text-emerald-200' };
+    }
+    if (status === 'postponed') {
+      return { text: 'Postponed', class: 'bg-yellow-600/20 border-yellow-500 text-yellow-200' };
+    }
+    if (this.isActionable(med)) {
+      return { text: 'Due', class: 'bg-blue-600/20 border-blue-500 text-blue-200' };
+    }
+    return { text: 'OK', class: 'bg-white/5 border-white/10 text-white/80' };
   }
 
   private computeNextMedication() {
@@ -341,7 +386,7 @@ get statusMessage() {
   const alertMed = this.todaysMeds.find(m => this.hasAlertActive(m));
   if (alertMed) {
     return { 
-      text: `Alert: Action required for ${alertMed.name}!`, 
+      text: 'Alert',
       class: 'bg-red-600/20 border-red-500 text-red-200' 
     };
   }
@@ -354,7 +399,7 @@ get statusMessage() {
   });
   if (overdueMed) {
     return { 
-      text: `Missed Action: You are 10+ minutes late for ${overdueMed.name}.`, 
+      text: 'Missed',
       class: 'bg-orange-600/20 border-orange-500 text-orange-200' 
     };
   }
@@ -362,20 +407,20 @@ get statusMessage() {
   const actionableMed = this.todaysMeds.find(m => this.isActionable(m) && !this.medStatuses.has(m._id!));
   if (actionableMed) {
     return { 
-      text: `It's time for your ${actionableMed.name}. Please confirm or postpone.`, 
+      text: 'Due',
       class: 'bg-blue-600/20 border-blue-500 text-blue-200' 
     };
   }
 
   if (Array.from(this.medStatuses.values()).includes('postponed')) {
     return { 
-      text: "You have postponed medications. Don't forget to take them later.", 
+      text: 'Postponed',
       class: 'bg-yellow-600/20 border-yellow-500 text-yellow-200' 
     };
   }
 
   return { 
-    text: "Everything is on track for today. Great job!", 
+    text: 'OK',
     class: 'bg-green-600/20 border-green-500 text-green-200' 
   };
 }

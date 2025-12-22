@@ -61,6 +61,39 @@ html, body {
 	overflow: hidden;
 }
 
+/* WATCH: side arrows for page-to-page navigation */
+.app-shell.mode-watch .watch-arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 120;
+	width: 34px;
+	height: 54px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 16px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.35);
+	color: rgba(255, 255, 255, 0.85);
+	font-size: 22px;
+	line-height: 1;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.app-shell.mode-watch .watch-arrow:active {
+	background: rgba(0, 0, 0, 0.5);
+}
+
+.app-shell.mode-watch .watch-arrow-left {
+	left: -18px;
+}
+
+.app-shell.mode-watch .watch-arrow-right {
+	right: -18px;
+}
+
 .app-shell.mode-watch .route-content {
 	padding: 0;
 }
@@ -74,7 +107,17 @@ html, body {
 }
 
 /* Each routed component's host element must be allowed to shrink and scroll */
-.route-content > * {
+/* IMPORTANT: <router-outlet> itself is an empty element in the DOM.
+   If it gets height/flex styles it will create a large blank area. */
+.route-content > router-outlet {
+	flex: 0 0 auto;
+	height: 0;
+	min-height: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.route-content > :not(router-outlet) {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;

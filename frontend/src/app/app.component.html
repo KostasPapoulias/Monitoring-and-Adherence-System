@@ -31,8 +31,16 @@
         <router-outlet></router-outlet>
       </div>
 
-      <!-- PHONE BOTTOM NAV -->
-      <nav *ngIf="isCompactMode" class="bottom-nav">
+      <!-- WATCH SIDE ARROWS (replace bottom nav) -->
+      <button *ngIf="isWatchMode" type="button" class="watch-arrow watch-arrow-left" (click)="watchPrev()" aria-label="Previous page">
+        ‹
+      </button>
+      <button *ngIf="isWatchMode" type="button" class="watch-arrow watch-arrow-right" (click)="watchNext()" aria-label="Next page">
+        ›
+      </button>
+
+      <!-- PHONE/SPEAKER BOTTOM NAV (no watch) -->
+      <nav *ngIf="isCompactMode && !isWatchMode" class="bottom-nav">
         <a routerLink="/dashboard" routerLinkActive="active">
           <span>🏠</span>
           <small>Home</small>

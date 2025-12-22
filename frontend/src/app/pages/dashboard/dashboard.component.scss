@@ -66,5 +66,34 @@
   .dashboard-shell .p-4 {
     padding: 0.75rem;
   }
+
+  .watch-med-arrow {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 60;
+    width: 52px;
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.35);
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 16px;
+    line-height: 1;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .watch-med-arrow:active {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .watch-med-arrow-up {
+    top: 6px;
+  }
+
+  .watch-med-arrow-down {
+    bottom: 6px;
+  }
 }
 
