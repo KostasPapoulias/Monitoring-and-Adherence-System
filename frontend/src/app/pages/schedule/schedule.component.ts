@@ -5,6 +5,7 @@ import { PersonasService } from 'src/app/global/services/personas/personas.servi
 import { PersonaStateService } from 'src/app/global/services/personas/persona-state.service';
 import { PersonaModel } from 'src/app/global/models/personas/persona.model';
 import { MOCK_PERSONAS, MOCK_MEDICATIONS } from 'src/app/global/mock/mock-data';
+import { ScheduleState, DeviceMode, ViewMode, TextSize } from './schedule.state';
 
 @Component({
   selector: 'app-schedule',
@@ -14,15 +15,24 @@ import { MOCK_PERSONAS, MOCK_MEDICATIONS } from 'src/app/global/mock/mock-data';
 export class ScheduleComponent implements OnInit {
   isMobile = false;
   isWallDisplay = true;
-  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
+  deviceMode: DeviceMode = DeviceMode.WALL;
   isCompactMode = false;
-  uiTextSize: 'small' | 'medium' | 'large' = 'medium';
-  view: 'day' | 'week' | 'month' = 'day';
+  uiTextSize: TextSize = 'medium';
+  view: ViewMode = 'day';
   medications: MedicationModel[] = [];
   medIndex = 0;
   personas: PersonaModel[] = [];
   selectedPersonaId: string | null = null;
   selectedPersona: PersonaModel | null = null;
+
+  state: ScheduleState = {
+    medications: [],
+    view: 'day',
+    deviceMode: DeviceMode.WALL,
+    isCompactMode: false,
+    uiTextSize: 'medium',
+    currentMed: null,
+  };
 
   constructor(
     private meds: MedicationsService,
@@ -49,26 +59,31 @@ export class ScheduleComponent implements OnInit {
   }
 
   onPersonaChange(id: string) {
+    if (this.selectedPersonaId === id) return; // Prevent infinite loop
     this.selectedPersonaId = id;
     this.personaState.set(id);
     this.selectedPersona = this.personas.find(p => p._id === id) || null;
-    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
-    this.isCompactMode = this.deviceMode !== 'wall-display';
-    // Drive layout by persona device (not by window width)
+    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as DeviceMode) || DeviceMode.WALL;
+    this.isCompactMode = this.deviceMode !== DeviceMode.WALL;
     this.isMobile = this.isCompactMode;
     this.isWallDisplay = !this.isCompactMode;
-    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as any) || 'medium';
+    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as TextSize) || 'medium';
     this.refreshData(id);
     this.medIndex = 0;
+    this.state = this.buildState();
   }
 
-  setView(v: 'day' | 'week' | 'month') { this.view = v; }
+  setView(v: ViewMode) { 
+    this.view = v; 
+    this.state = this.buildState();
+  }
 
   private refreshData(userId: string) {
     // BACKEND PULL DISABLED: medications list
     // this.meds.getAll().subscribe(ms => this.medications = ms.filter(m => m.userId === userId));
     this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
     if (this.medIndex >= this.medications.length) this.medIndex = 0;
+    this.state = this.buildState();
   }
 
   get currentMed(): MedicationModel | null {
@@ -107,5 +122,16 @@ export class ScheduleComponent implements OnInit {
 
   doseCount(med: MedicationModel): number {
     return (med.times || []).length;
+  }
+
+  private buildState(): ScheduleState {
+    return {
+      medications: this.medications,
+      view: this.view,
+      deviceMode: this.deviceMode,
+      isCompactMode: this.isCompactMode,
+      uiTextSize: this.uiTextSize,
+      currentMed: this.currentMed,
+    };
   }
 }

@@ -61,6 +61,9 @@ export const MOCK_MEDICATIONS: any[] = [
   // Make ACE inhibitor actionable right now
   { _id: 'm1', name: 'ACE inhibitor', dosage: '10mg', frequency: 'daily', times: [currentHHMM()], sideEffects: ['dizziness'], userId: '1', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },
   { _id: 'm2', name: 'Beta blocker', dosage: '5mg', frequency: 'daily', times: ['20:00'], sideEffects: ['fatigue'], userId: '1', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },
+    { _id: 'm11', name: ' blocker', dosage: '5mg', frequency: 'daily', times: ['20:00'], sideEffects: ['fatigue'], userId: '1', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },
+  { _id: 'm10', name: 'Vitamin D', dosage: '2000 IU', frequency: 'daily', times: ['09:00'], sideEffects: [], userId: '1', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },
+
   { _id: 'm3', name: 'Diuretic', dosage: '20mg', frequency: 'daily', times: ['14:00'], sideEffects: ['increased urination'], userId: '1', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },
   { _id: 'm4', name: 'Iron supplement', dosage: '325mg', frequency: 'daily', times: ['09:00'], sideEffects: [], userId: '2', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },
   { _id: 'm5', name: 'Vitamin D', dosage: '2000 IU', frequency: 'daily', times: ['09:00'], sideEffects: [], userId: '2', limits: { maxPostponeMinutes: 30, windowMinutes: 30 }, alert: { active: false } },

@@ -1,0 +1,11 @@
+.status {
+  border-radius: 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
+  color: #f8fafc;
+  .title { font-weight: 700; }
+  .hint { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+}
+.status.alert { border-color: #ef4444; background: rgba(239,68,68,0.12); }
+.status.ok { border-color: #10b981; background: rgba(16,185,129,0.12); }

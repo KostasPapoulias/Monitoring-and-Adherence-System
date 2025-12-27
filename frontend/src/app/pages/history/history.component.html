@@ -8,150 +8,17 @@
     </select>
   </div>
 
-  <!-- KPI STRIP (compact) -->
-  <div class="kpi-grid grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
-    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-      <div *ngIf="deviceMode !== 'smartwatch'" class="text-emerald-300/90 text-[9px] uppercase font-black tracking-widest">Taken</div>
-      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{summary.taken}}</div>
-    </div>
-    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-red-500/10 border border-red-500/20">
-      <div *ngIf="deviceMode !== 'smartwatch'" class="text-red-300/90 text-[9px] uppercase font-black tracking-widest">Missed</div>
-      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{summary.missed}}</div>
-    </div>
-    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
-      <div *ngIf="deviceMode !== 'smartwatch'" class="text-yellow-300/90 text-[9px] uppercase font-black tracking-widest">Postponed</div>
-      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{summary.postponed}}</div>
-    </div>
-
-    <div class="kpi p-2.5 md:p-3 rounded-2xl bg-white/5 border border-white/10">
-      <div *ngIf="deviceMode !== 'smartwatch'" class="text-white/70 text-[9px] uppercase font-black tracking-widest">Adherence</div>
-      <div class="flex items-end justify-between gap-3 mt-1">
-        <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none">{{adherenceRatePct}}%</div>
-        <div *ngIf="deviceMode !== 'smartwatch'" class="kpi-meta text-right text-[10px] leading-tight text-white/50">
-          <div *ngIf="avgConfirmDelayMin !== null">Avg: <span class="text-white/80 font-mono">{{avgConfirmDelayMin}}m</span></div>
-          <div *ngIf="lastActionAt">Last: <span class="text-white/80 font-mono">{{lastActionAt | date:'MMM d, HH:mm'}}</span></div>
-        </div>
-      </div>
-      <div class="kpi-progress mt-2 h-1 rounded-full bg-white/10 overflow-hidden">
-        <div class="h-full bg-emerald-500/70" [style.width.%]="adherenceRatePct"></div>
-      </div>
-    </div>
-  </div>
+  <app-kpi-strip [state]="state"></app-kpi-strip>
 
   <div class="history-body grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 flex-1 min-h-0">
-    <div *ngIf="deviceMode !== 'smartwatch'" class="meds-panel lg:col-span-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col min-h-0">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">By Medication</div>
-        <div class="text-[10px] text-white/40">{{ medicationBreakdown.length }}</div>
-      </div>
-      <div *ngIf="medicationBreakdown.length === 0" class="text-white/50 text-sm">No events yet.</div>
+    <app-medication-breakdown *ngIf="deviceMode !== 'smartwatch'" [state]="state"></app-medication-breakdown>
 
-      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
-        <div *ngFor="let m of medicationBreakdown" class="py-3 border-t border-white/10 first:border-t-0">
-          <div class="flex items-center justify-between gap-3">
-            <div class="font-bold text-white truncate">{{m.medicationId}}</div>
-            <div class="text-[10px] text-white/60 font-mono">{{m.total}}</div>
-          </div>
-          <div class="mt-2 grid grid-cols-3 gap-2 text-[11px]">
-            <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-emerald-200">T: <span class="font-mono">{{m.taken}}</span></div>
-            <div class="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 text-yellow-200">P: <span class="font-mono">{{m.postponed}}</span></div>
-            <div class="rounded-xl bg-red-500/10 border border-red-500/20 px-2 py-1 text-red-200">M: <span class="font-mono">{{m.missed}}</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="actions-panel lg:col-span-2 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">All Actions</div>
-        <div *ngIf="deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ events.length }}</div>
-      </div>
-
-      <div class="h-px bg-white/10 mb-3"></div>
- 
-      <!-- SMARTWATCH: one action at a time (pager) -->
-      <div *ngIf="deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
-        <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevEvent()" aria-label="Previous action">˄</button>
-        <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextEvent()" aria-label="Next action">˅</button>
-
-        <div *ngIf="currentEvent as e" class="h-full flex flex-col justify-center">
-          <div class="group p-4 rounded-2xl bg-black/20 border border-white/10">
-            <div class="flex items-center gap-3">
-              <div class="w-2 h-12 rounded-full transition-colors"
-                [ngClass]="{
-                  'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]': e.type === 'taken',
-                  'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]': e.type === 'missed',
-                  'bg-yellow-500': e.type === 'postponed'
-                }"></div>
-
-              <div class="min-w-0 flex-1">
-                <div class="text-xl font-mono text-white leading-none">{{e.scheduledAt | date:'HH:mm'}}</div>
-                <div class="text-[10px] text-white/40 uppercase font-bold">{{e.scheduledAt | date:'MMM d'}}</div>
-                <div class="mt-1 text-base font-black text-white truncate">{{e.medicationId}}</div>
-                <div *ngIf="e.type==='postponed' && e.postponeMinutes" class="text-[10px] text-white/50">+{{e.postponeMinutes}}m</div>
-              </div>
-            </div>
-
-            <div class="mt-3 flex items-center justify-center gap-2">
-              <button type="button" class="watch-type-btn" [class.active]="e.type==='taken'" (click)="setEventType(e,'taken')">T</button>
-              <button type="button" class="watch-type-btn" [class.active]="e.type==='postponed'" (click)="setEventType(e,'postponed')">P</button>
-              <button type="button" class="watch-type-btn" [class.active]="e.type==='missed'" (click)="setEventType(e,'missed')">M</button>
-            </div>
-          </div>
-        </div>
-
-        <div *ngIf="!currentEvent" class="text-white/50 text-sm flex items-center justify-center h-full">No actions.</div>
-      </div>
-
-      <!-- NON-WATCH: list -->
-      <div *ngIf="deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
-        <div class="space-y-2 md:space-y-3">
-          <div *ngFor="let e of events" 
-               class="group flex items-center gap-4 md:gap-6 p-3 md:p-4 rounded-2xl bg-black/20 border border-white/10 hover:bg-black/30 transition-all">
-        
-        <div class="w-2 h-12 rounded-full transition-colors"
-             [ngClass]="{
-               'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]': e.type === 'taken',
-               'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]': e.type === 'missed',
-               'bg-yellow-500': e.type === 'postponed'
-             }">
-        </div>
-
-        <div class="flex-none w-24 md:w-28">
-          <span class="block text-sm md:text-lg font-mono text-white">{{e.scheduledAt | date:'HH:mm'}}</span>
-          <span class="block text-[10px] text-white/40 uppercase font-bold">{{e.scheduledAt | date:'MMM d, y'}}</span>
-        </div>
-
-        <div class="flex-1 min-w-0">
-          <div class="text-sm md:text-lg font-bold text-white truncate">{{e.medicationId}}</div>
-          <div class="flex gap-3 text-xs text-white/50">
-            <span>Method: <span class="text-white/80">{{e.method || 'Auto'}}</span></span>
-            <span>Device: <span class="text-white/80">{{e.device || 'Wall'}}</span></span>
-            <span *ngIf="e.type==='postponed' && e.postponeMinutes">Postpone: <span class="text-white/80 font-mono">{{e.postponeMinutes}}m</span></span>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-4">
-          <div *ngIf="e.confirmedAt" class="text-right hidden md:block">
-            <span class="block text-[10px] text-white/30 uppercase font-bold">Confirmed At</span>
-            <span class="text-xs text-emerald-400 font-mono">{{e.confirmedAt | date:'HH:mm'}}</span>
-          </div>
-
-          <div class="hidden md:flex items-center gap-1">
-            <button type="button" class="type-btn" [class.active]="e.type==='taken'" (click)="setEventType(e,'taken')">T</button>
-            <button type="button" class="type-btn" [class.active]="e.type==='postponed'" (click)="setEventType(e,'postponed')">P</button>
-            <button type="button" class="type-btn" [class.active]="e.type==='missed'" (click)="setEventType(e,'missed')">M</button>
-          </div>
-          
-            <button *ngIf="e.type==='taken'" 
-              class="revoke-btn px-4 py-2 bg-white/5 hover:bg-red-500/20 text-white/60 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl text-xs font-bold transition-all"
-                  (click)="cancelTaken(e)">
-            REVOKE
-          </button>
-        </div>
-      </div>
-        </div>
-      </div>
-    </div>
+    <app-actions-list
+      [state]="state"
+      (prevEvent)="prevEvent()"
+      (nextEvent)="nextEvent()"
+      (setType)="setEventType($event.event, $event.type)"
+      (cancel)="cancelTaken($event)">
+    </app-actions-list>
   </div>
 </div>

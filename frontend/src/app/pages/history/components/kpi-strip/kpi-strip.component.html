@@ -1,0 +1,28 @@
+<div class="kpi-grid grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 mb-3 md:mb-4">
+  <div class="kpi p-2.5 md:p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-emerald-300/90 text-[9px] uppercase font-black tracking-widest">Taken</div>
+    <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{state.summary.taken}}</div>
+  </div>
+  <div class="kpi p-2.5 md:p-3 rounded-2xl bg-red-500/10 border border-red-500/20">
+    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-red-300/90 text-[9px] uppercase font-black tracking-widest">Missed</div>
+    <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{state.summary.missed}}</div>
+  </div>
+  <div class="kpi p-2.5 md:p-3 rounded-2xl bg-yellow-500/10 border border-yellow-500/20">
+    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-yellow-300/90 text-[9px] uppercase font-black tracking-widest">Postponed</div>
+    <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none mt-1">{{state.summary.postponed}}</div>
+  </div>
+
+  <div class="kpi p-2.5 md:p-3 rounded-2xl bg-white/5 border border-white/10">
+    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-white/70 text-[9px] uppercase font-black tracking-widest">Adherence</div>
+    <div class="flex items-end justify-between gap-3 mt-1">
+      <div class="kpi-value text-lg md:text-3xl font-black text-white leading-none">{{state.adherenceRatePct}}%</div>
+      <div *ngIf="state.deviceMode !== 'smartwatch'" class="kpi-meta text-right text-[10px] leading-tight text-white/50">
+        <div *ngIf="state.avgConfirmDelayMin !== null">Avg: <span class="text-white/80 font-mono">{{state.avgConfirmDelayMin}}m</span></div>
+        <div *ngIf="state.lastActionAt">Last: <span class="text-white/80 font-mono">{{state.lastActionAt | date:'MMM d, HH:mm'}}</span></div>
+      </div>
+    </div>
+    <div class="kpi-progress mt-2 h-1 rounded-full bg-white/10 overflow-hidden">
+      <div class="h-full bg-emerald-500/70" [style.width.%]="state.adherenceRatePct"></div>
+    </div>
+  </div>
+</div>

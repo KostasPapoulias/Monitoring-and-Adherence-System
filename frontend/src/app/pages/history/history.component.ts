@@ -7,6 +7,7 @@ import { PersonaModel } from 'src/app/global/models/personas/persona.model';
 import { PersonaStateService } from 'src/app/global/services/personas/persona-state.service';
 import { environment } from 'src/environments/environment';
 import { MOCK_ADHERENCE_EVENTS, MOCK_PERSONAS } from 'src/app/global/mock/mock-data';
+import { HistoryState, DeviceMode, TextSize, MedicationBreakdown } from './history.state';
 
 @Component({
   selector: 'app-history',
@@ -20,16 +21,29 @@ export class HistoryComponent implements OnInit {
   selectedPersonaId: string | null = null;
   selectedPersona: PersonaModel | null = null;
 
-  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
+  deviceMode: DeviceMode = DeviceMode.WALL;
   isCompactMode = false;
-  uiTextSize: 'small' | 'medium' | 'large' = 'medium';
+  uiTextSize: TextSize = 'medium';
 
   eventIndex = 0;
 
   adherenceRatePct = 0;
   avgConfirmDelayMin: number | null = null;
   lastActionAt: Date | null = null;
-  medicationBreakdown: Array<{ medicationId: string; taken: number; missed: number; postponed: number; total: number }> = [];
+  medicationBreakdown: MedicationBreakdown[] = [];
+
+  state: HistoryState = {
+    events: [],
+    summary: new ReportSummaryModel(),
+    adherenceRatePct: 0,
+    avgConfirmDelayMin: null,
+    lastActionAt: null,
+    medicationBreakdown: [],
+    deviceMode: DeviceMode.WALL,
+    isCompactMode: false,
+    uiTextSize: 'medium',
+    currentEvent: null,
+  };
 
   constructor(private adherence: AdherenceService, private personasSvc: PersonasService, private personaState: PersonaStateService) {}
 
@@ -61,13 +75,15 @@ export class HistoryComponent implements OnInit {
   }
 
   onPersonaChange(id: string) {
+    if (this.selectedPersonaId === id) return; // Prevent infinite loop
     this.selectedPersonaId = id;
     this.personaState.set(id);
     this.selectedPersona = this.personas.find(p => (p as any)._id === id) || null;
-    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
-    this.isCompactMode = this.deviceMode !== 'wall-display';
-    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as any) || 'medium';
+    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as DeviceMode) || DeviceMode.WALL;
+    this.isCompactMode = this.deviceMode !== DeviceMode.WALL;
+    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as TextSize) || 'medium';
     this.eventIndex = 0;
+    this.state = this.buildState();
   }
 
   get currentEvent(): AdherenceEventModel | null {
@@ -144,6 +160,7 @@ export class HistoryComponent implements OnInit {
       byMed.set(med, entry);
     }
     this.medicationBreakdown = Array.from(byMed.values()).sort((a, b) => b.total - a.total);
+    this.state = this.buildState();
   }
 
   cancelTaken(e: AdherenceEventModel) {
@@ -184,5 +201,20 @@ export class HistoryComponent implements OnInit {
     // keep timestamps consistent for analytics display
     e.confirmedAt = new Date().toISOString();
     this.computeAnalytics();
+  }
+
+  private buildState(): HistoryState {
+    return {
+      events: this.events,
+      summary: this.summary,
+      adherenceRatePct: this.adherenceRatePct,
+      avgConfirmDelayMin: this.avgConfirmDelayMin,
+      lastActionAt: this.lastActionAt,
+      medicationBreakdown: this.medicationBreakdown,
+      deviceMode: this.deviceMode,
+      isCompactMode: this.isCompactMode,
+      uiTextSize: this.uiTextSize,
+      currentEvent: this.currentEvent,
+    };
   }
 }

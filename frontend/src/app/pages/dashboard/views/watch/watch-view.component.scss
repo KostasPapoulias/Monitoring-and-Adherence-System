@@ -1,0 +1,28 @@
+.watch-view { position: relative; height: 100%; display: flex; align-items: center; justify-content: center; }
+.arrow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px; height: 28px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.85);
+}
+.arrow.up { top: 8px; }
+.arrow.down { bottom: 8px; }
+.watch-card {
+  width: 100%;
+  max-width: 360px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 16px;
+  background: rgba(255,255,255,0.06);
+  color: #f8fafc;
+}
+.time { font-family: "IBM Plex Mono", monospace; opacity: 0.8; }
+.time.alert { color: #ef4444; }
+.name { font-weight: 800; margin-top: 6px; }
+.dose { opacity: 0.7; font-size: 13px; }
+.badge { margin-top: 10px; font-size: 11px; opacity: 0.7; text-transform: uppercase; }
+.empty { color: rgba(255,255,255,0.5); }

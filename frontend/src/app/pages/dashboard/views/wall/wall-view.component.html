@@ -1,0 +1,14 @@
+<div class="wall-cards custom-scrollbar">
+  <div *ngFor="let m of state.todaysMeds"
+       class="wall-card"
+       [ngClass]="cardClass(m)"
+       (click)="open.emit(m)">
+
+    <div class="time" [class.alert]="hasAlertActive(m)">{{ getNextScheduledDate(m) | date:'HH:mm' }}</div>
+    <div class="meta">
+      <div class="name">{{ m.name }}</div>
+      <div class="dose">{{ m.dosage }}</div>
+    </div>
+    <div class="badge" [ngClass]="medStatusFor(m).class">{{ medStatusFor(m).text }}</div>
+  </div>
+</div>

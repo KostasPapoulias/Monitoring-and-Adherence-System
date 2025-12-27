@@ -1,0 +1,14 @@
+<div *ngIf="med" class="modal-backdrop" (click)="emitClose()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="title">{{ med?.name }}</div>
+    <div class="subtitle">{{ med?.dosage }} • {{ scheduledAt | date:'HH:mm' }}</div>
+
+    <div *ngIf="error" class="error">{{ error }}</div>
+
+    <div class="actions">
+      <button class="confirm" [disabled]="!allowAction" (click)="emitConfirm()">Confirm dose</button>
+      <button class="postpone" [disabled]="!allowAction" (click)="emitPostpone(5)">Postpone 5m</button>
+      <button class="cancel" (click)="emitClose()">Cancel</button>
+    </div>
+  </div>
+</div>
