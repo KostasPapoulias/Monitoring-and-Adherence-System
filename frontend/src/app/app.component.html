@@ -4,7 +4,7 @@
   [class.mode-watch]="isWatchMode"
   [class.mode-speaker]="isSpeakerMode">
 
-  <header *ngIf="!isWatchMode" class="topbar flex-none flex items-center justify-between px-4 py-3 bg-black/30 backdrop-blur-sm border-b border-white/10">
+  <header *ngIf="!isWatchMode" class="topbar flex-none flex items-center justify-between px-4 py-1 bg-black/30 backdrop-blur-sm border-b border-white/10">
     <span class="uppercase tracking-widest text-lg text-neutral-200">
       Smart Wall
     </span>
@@ -16,7 +16,7 @@
   <main class="content-wrapper flex-1 min-h-0 overflow-hidden flex flex-col w-full">
     <div class="content-panel h-full flex flex-col bg-white/5 overflow-hidden w-full">
 
-      <!-- WALL SCREEN NAV (UNCHANGED) -->
+      <!-- WALL SCREEN NAV  -->
       <nav *ngIf="!isCompactMode"
         class="primary-nav flex-none flex gap-2 p-3 border-b border-white/10 bg-black/20">
         <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="nav-btn">Dashboard</a>
@@ -31,7 +31,7 @@
         <router-outlet></router-outlet>
       </div>
 
-      <!-- WATCH SIDE ARROWS (replace bottom nav) -->
+      <!-- WATCH SIDE ARROWS  -->
       <button *ngIf="isWatchMode" type="button" class="watch-arrow watch-arrow-left" (click)="watchPrev()" aria-label="Previous page">
         ‹
       </button>
@@ -39,7 +39,7 @@
         ›
       </button>
 
-      <!-- PHONE/SPEAKER BOTTOM NAV (no watch) -->
+      <!-- PHONE/SPEAKER BOTTOM NAV -->
       <nav *ngIf="isCompactMode && !isWatchMode" class="bottom-nav">
         <a routerLink="/dashboard" routerLinkActive="active">
           <span>🏠</span>

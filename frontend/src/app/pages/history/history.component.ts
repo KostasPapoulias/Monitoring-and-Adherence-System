@@ -25,6 +25,9 @@ export class HistoryComponent implements OnInit {
   isCompactMode = false;
   uiTextSize: TextSize = 'medium';
 
+  showKpi = true;
+  showMedBreakdown = true;
+
   eventIndex = 0;
 
   adherenceRatePct = 0;
@@ -101,6 +104,15 @@ export class HistoryComponent implements OnInit {
     if (!this.events || this.events.length === 0) return;
     this.eventIndex = (this.eventIndex + 1) % this.events.length;
   }
+
+  toggleKpi() {
+    this.showKpi = !this.showKpi;
+  }
+
+  toggleMedBreakdown() {
+    this.showMedBreakdown = !this.showMedBreakdown;
+  }
+  
   private refreshData(userId: string) {
     if (environment.offline) {
       const all = (MOCK_ADHERENCE_EVENTS as any[]).filter(e => e.userId === userId);

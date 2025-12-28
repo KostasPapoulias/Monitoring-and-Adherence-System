@@ -1,4 +1,4 @@
-<div class="meds-panel lg:col-span-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col min-h-0">
+<div class="meds-panel h-full p-2 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col overflow-hidden">
   <div class="flex items-center justify-between mb-3">
     <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">By Medication</div>
     <div class="text-[10px] text-white/40">{{ state.medicationBreakdown.length }}</div>
@@ -6,7 +6,7 @@
   <div *ngIf="state.medicationBreakdown.length === 0" class="text-white/50 text-sm">No events yet.</div>
 
   <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
-    <div *ngFor="let m of state.medicationBreakdown" class="py-3 border-t border-white/10 first:border-t-0">
+    <div *ngFor="let m of state.medicationBreakdown" class="py-1 border-t border-white/10 first:border-t-0">
       <div class="flex items-center justify-between gap-3">
         <div class="font-bold text-white truncate">{{m.medicationId}}</div>
         <div class="text-[10px] text-white/60 font-mono">{{m.total}}</div>

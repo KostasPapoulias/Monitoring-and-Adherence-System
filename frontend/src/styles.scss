@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* You can add global styles to this file, and also import other style files */
 
 body {
 	margin: 0;
@@ -12,7 +11,10 @@ body {
 							#0f172a;
 	color: #f8fafc;
 	font-size: 16px;
-	overflow-x: hidden;
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
+	height: 100vh;
 }
 
 /* Mobile-friendly helpers */
