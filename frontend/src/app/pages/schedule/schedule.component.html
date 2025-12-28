@@ -14,7 +14,10 @@
     </select>
   </div>
 
-  <div class="flex gap-2 mb-3 md:mb-4 bg-black/20 p-1.5 rounded-2xl w-fit border border-white/5">
+    <div class="flex gap-1 mb-2 md:mb-4 bg-black/20 p-0.1 rounded-2xl border border-white/5"
+      [class.w-fit]="deviceMode !== 'smartwatch'"
+      [class.w-full]="deviceMode === 'smartwatch'"
+      [class.justify-center]="deviceMode === 'smartwatch'">
       <button (click)="setView('day')"
         [class.active-tab]="view==='day'" class="tab-btn">
         <span *ngIf="deviceMode !== 'smartwatch'">Today</span>

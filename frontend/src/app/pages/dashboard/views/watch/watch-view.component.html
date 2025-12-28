@@ -2,12 +2,15 @@
   <button class="arrow up" (click)="prev.emit()">˄</button>
   <button class="arrow down" (click)="next.emit()">˅</button>
 
-  <button *ngIf="watchMed as m" class="watch-card" [ngClass]="medStatusFor(m).class" (click)="open.emit(m)">
-    <div class="time" [class.alert]="hasAlertActive(m)">{{ getNextScheduledDate(m) | date:'HH:mm' }}</div>
-    <div class="name">{{ m.name }}</div>
-    <div class="dose">{{ m.dosage }}</div>
-    <div class="badge">{{ medStatusFor(m).text }}</div>
-  </button>
+  <div *ngIf="watchMed as m" class="h-full flex flex-col justify-center">
+    <button class="watch-card" [ngClass]="medStatusFor(m).class" (click)="open.emit(m)">
+      <div class="name">{{ m.name }}</div>
+      <div class="dose">{{ m.dosage }}</div>
+      <div class="time" [class.alert]="hasAlertActive(m)">{{ getNextScheduledDate(m) | date:'HH:mm' }}</div>
+      <div class="time-label">Next dose</div>
+      <div class="badge" [class.alert]="hasAlertActive(m)">{{ medStatusFor(m).text }}</div>
+    </button>
+  </div>
 
   <div *ngIf="!watchMed" class="empty">No meds</div>
 </div>

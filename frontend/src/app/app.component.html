@@ -14,6 +14,15 @@
   </header>
 
   <main class="content-wrapper flex-1 min-h-0 overflow-hidden flex flex-col w-full">
+    
+    <!-- WATCH LEFT/RIGHT ARROWS -->
+    <button *ngIf="isWatchMode" type="button" class="watch-nav-arrow watch-nav-arrow-left" (click)="watchPrev()" aria-label="Previous page">
+      ‹
+    </button>
+    <button *ngIf="isWatchMode" type="button" class="watch-nav-arrow watch-nav-arrow-right" (click)="watchNext()" aria-label="Next page">
+      ›
+    </button>
+
     <div class="content-panel h-full flex flex-col bg-white/5 overflow-hidden w-full">
 
       <!-- WALL SCREEN NAV  -->
@@ -30,14 +39,6 @@
            [class.phone-content]="isCompactMode">
         <router-outlet></router-outlet>
       </div>
-
-      <!-- WATCH SIDE ARROWS  -->
-      <button *ngIf="isWatchMode" type="button" class="watch-arrow watch-arrow-left" (click)="watchPrev()" aria-label="Previous page">
-        ‹
-      </button>
-      <button *ngIf="isWatchMode" type="button" class="watch-arrow watch-arrow-right" (click)="watchNext()" aria-label="Next page">
-        ›
-      </button>
 
       <!-- PHONE/SPEAKER BOTTOM NAV -->
       <nav *ngIf="isCompactMode && !isWatchMode" class="bottom-nav">

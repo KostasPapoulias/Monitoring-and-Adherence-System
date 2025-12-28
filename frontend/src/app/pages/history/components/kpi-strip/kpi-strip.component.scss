@@ -1,1 +1,16 @@
 :host { display: block; }
+
+:host ::ng-deep .kpi-grid {
+  .kpi-value {
+    font-size: 2em;
+  }
+}
+
+:host-context(.mode-watch) ::ng-deep .kpi-grid {
+  transform: scale(0.9);
+  transform-origin: top left;
+}
+// :host-context(.mode-watch) ::ng-deep .kpi {
+//   transform: scale(0.8);
+//   transform-origin: center;
+// }

@@ -1,5 +1,5 @@
-<div class="flex-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-week">
-  <div class="flex items-center justify-between mb-3">
+<div class="flex-1 p-3 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-week">
+  <div class="flex items-center justify-between mb-1">
     <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ state.deviceMode === 'smartwatch' ? 'W' : 'This Week' }}</div>
     <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ state.medications.length }}</div>
   </div>
@@ -7,11 +7,11 @@
 
   <!-- SMARTWATCH: one medication at a time -->
   <div *ngIf="state.deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
-    <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevMed.emit()" aria-label="Previous medication">˄</button>
-    <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextMed.emit()" aria-label="Next medication">˅</button>
+    <button type="button" class="arrow up" (click)="prevMed.emit()" aria-label="Previous medication">˄</button>
+    <button type="button" class="arrow down" (click)="nextMed.emit()" aria-label="Next medication">˅</button>
 
     <div *ngIf="state.currentMed as m" class="h-full flex flex-col justify-center">
-      <div class="watch-week-card p-4 rounded-2xl bg-black/20 border border-white/10">
+      <div class="watch-week-card p-1 rounded-2xl bg-black/20 border border-white/10">
         <div class="text-emerald-400 font-black text-base truncate">{{m.name}}</div>
         <div class="text-white/70 text-xs truncate">{{m.dosage}}</div>
         <div class="mt-2 inline-block text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-xl uppercase font-black">{{m.frequency}}</div>

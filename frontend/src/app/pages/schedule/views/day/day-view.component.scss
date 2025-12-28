@@ -1,1 +1,27 @@
 :host { display: block; height: 100%; }
+
+.arrow {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  width: 72px;
+  height: 48px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.5);
+  color: rgba(255,255,255,0.9);
+  font-size: 24px;
+  line-height: 1;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  backdrop-filter: blur(8px);
+}
+
+.arrow:active {
+  background: rgba(0,0,0,0.7);
+  transform: translateX(-50%) scale(0.95);
+}
+
+.arrow.up { top: calc(50% - min(320px, 92vw) / 2 - 110px); }
+.arrow.down { bottom: calc(50% - min(320px, 92vw) / 2 - 110px); }

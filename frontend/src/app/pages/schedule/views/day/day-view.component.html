@@ -1,5 +1,5 @@
-<div class="flex-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-day">
-  <div class="flex items-center justify-between mb-3">
+<div class="flex-1 p-3 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-day">
+  <div class="flex items-center justify-between mb-1">
     <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ state.deviceMode === 'smartwatch' ? 'D' : 'Today' }}</div>
     <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ state.medications.length }}</div>
   </div>
@@ -7,11 +7,11 @@
 
   <!-- SMARTWATCH: one medication at a time -->
   <div *ngIf="state.deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
-    <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevMed.emit()" aria-label="Previous medication">˄</button>
-    <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextMed.emit()" aria-label="Next medication">˅</button>
+    <button type="button" class="arrow up" (click)="prevMed.emit()" aria-label="Previous medication">˄</button>
+    <button type="button" class="arrow down" (click)="nextMed.emit()" aria-label="Next medication">˅</button>
 
     <div *ngIf="state.currentMed as m" class="h-full flex flex-col justify-center">
-      <div class="group watch-day-card flex items-center gap-3 p-4 rounded-2xl bg-black/20 border border-white/10">
+      <div class="group watch-day-card flex items-center gap-3 p-1 rounded-2xl bg-black/20 border border-white/10">
         <div class="watch-accent w-2 h-10 rounded-full bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
 
         <div class="min-w-0 flex-1">

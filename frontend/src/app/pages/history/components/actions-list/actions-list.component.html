@@ -1,10 +1,10 @@
 <div class="actions-panel lg:col-span-2 p-2 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0">
-  <div class="flex items-center justify-between mb-3">
-    <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">All Actions</div>
-    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ state.events.length }}</div>
+  <div *ngIf="state.deviceMode !== 'smartwatch'" class="flex items-center justify-between mb-3">
+    <div  class="text-white/70 text-[10px] uppercase font-black tracking-widest">All Actions</div>
+    <div  class="text-[10px] text-white/40">{{ state.events.length }}</div>
   </div>
 
-  <div class="h-px bg-white/10 mb-3"></div>
+  <div *ngIf="state.deviceMode !== 'smartwatch'" class="h-px bg-white/10 mb-3"></div>
 
   <!-- SMARTWATCH: one action at a time (pager) -->
   <div *ngIf="state.deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
@@ -12,7 +12,7 @@
     <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextEvent.emit()" aria-label="Next action">˅</button>
 
     <div *ngIf="state.currentEvent as e" class="h-full flex flex-col justify-center">
-      <div class="group p-4 rounded-2xl bg-black/20 border border-white/10">
+      <div class="group p-3 rounded-2xl bg-black/20 border border-white/10">
         <div class="flex items-center gap-3">
           <div class="w-2 h-12 rounded-full transition-colors"
             [ngClass]="{

@@ -98,11 +98,13 @@ export class HistoryComponent implements OnInit {
   prevEvent() {
     if (!this.events || this.events.length === 0) return;
     this.eventIndex = (this.eventIndex - 1 + this.events.length) % this.events.length;
+    this.state = this.buildState();
   }
 
   nextEvent() {
     if (!this.events || this.events.length === 0) return;
     this.eventIndex = (this.eventIndex + 1) % this.events.length;
+    this.state = this.buildState();
   }
 
   toggleKpi() {

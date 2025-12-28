@@ -94,12 +94,14 @@ export class ScheduleComponent implements OnInit {
     const len = this.medications.length;
     if (len === 0) return;
     this.medIndex = (this.medIndex - 1 + len) % len;
+    this.state = this.buildState();
   }
 
   nextMed() {
     const len = this.medications.length;
     if (len === 0) return;
     this.medIndex = (this.medIndex + 1) % len;
+    this.state = this.buildState();
   }
 
   getNextDoseTime(med: MedicationModel): string {
