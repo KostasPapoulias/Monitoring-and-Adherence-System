@@ -56,7 +56,10 @@
     </app-speaker-view>
   </ng-container>
 
-  <app-action-modal
+
+</div>
+
+<app-action-modal
     [med]="selectedMedication"
     [scheduledAt]="selectedScheduledAt"
     [error]="actionError"
@@ -64,5 +67,4 @@
     (confirm)="confirmSelected()"
     (postpone)="postponeSelected($event)"
     (close)="closeAction()">
-  </app-action-modal>
-</div>
+</app-action-modal>

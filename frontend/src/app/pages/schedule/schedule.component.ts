@@ -41,21 +41,15 @@ export class ScheduleComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // BACKEND PULL DISABLED: personas list
-    // this.personasSvc.list().subscribe(list => {
-    //   this.personas = list;
-    //   const stored = this.personaState.current() || (list[0]?._id ?? null);
-    //   if (stored) { this.onPersonaChange(stored); }
-    // });
-      this.isMobile = window.innerWidth <= 768;
-
-    this.personas = [...(MOCK_PERSONAS as any[])];
-    {
-      const stored = this.personaState.current() || (this.personas[0]?._id ?? null);
+    this.isMobile = window.innerWidth <= 768;
+    
+    this.personasSvc.list().subscribe(list => {
+      this.personas = list;
+      const stored = this.personaState.current() || (list[0]?._id ?? null);
       if (stored) { this.onPersonaChange(stored); this.refreshData(stored); }
-    }
-    // BACKEND PULL DISABLED: persona state stream
-    // this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
+    });
+    
+    this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
   }
 
   onPersonaChange(id: string) {
@@ -79,11 +73,11 @@ export class ScheduleComponent implements OnInit {
   }
 
   private refreshData(userId: string) {
-    // BACKEND PULL DISABLED: medications list
-    // this.meds.getAll().subscribe(ms => this.medications = ms.filter(m => m.userId === userId));
-    this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
-    if (this.medIndex >= this.medications.length) this.medIndex = 0;
-    this.state = this.buildState();
+    this.meds.getAll().subscribe(ms => {
+      this.medications = ms.filter(m => m.userId === userId);
+      if (this.medIndex >= this.medications.length) this.medIndex = 0;
+      this.state = this.buildState();
+    });
   }
 
   get currentMed(): MedicationModel | null {

@@ -81,37 +81,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.selectedPersonaId = qpPersona;
       this.personaState.set(qpPersona);
     }
-    // BACKEND PULL DISABLED: presence subscription
-    // this.presenceSvc.state().subscribe(state => {
-    //   this.presence = state;
-    //   this.isWallDisplay = state?.device === 'wall-display';
-    //   this.viewMode = (state?.viewMode || 'general') as any;
-    //   this.detailedPersona = state?.persona || null;
-    //   this.detailedMeds = state?.meds || [];
-    //   if (state?.persona?._id) {
-    //     this.selectedPersonaId = state.persona._id;
-    //   }
-    //   console.log('[dashboard] presence state', state);
-    // });
+    this.presenceSvc.state().subscribe(state => {
+      this.presence = state;
+      this.isWallDisplay = state?.device === 'wall-display';
+      this.viewMode = (state?.viewMode || 'general') as any;
+      this.detailedPersona = state?.persona || null;
+      this.detailedMeds = state?.meds || [];
+      if (state?.persona?._id) {
+        this.selectedPersonaId = state.persona._id;
+      }
+      console.log('[dashboard] presence state', state);
+    });
 
-    // BACKEND PULL DISABLED: personas list
-    // this.personasSvc.list().subscribe(list => {
-    //   this.personas = list;
-    //   const stored = this.personaState.current() || (list[0]?._id ?? null);
-    //   if (stored) { this.onPersonaChange(stored); }
-    // });
-    this.personas = [...(MOCK_PERSONAS as any[])];
-    {
-      const stored = this.personaState.current() || (this.personas[0]?._id ?? null);
+    this.personasSvc.list().subscribe(list => {
+      this.personas = list;
+      const stored = this.personaState.current() || (list[0]?._id ?? null);
       if (stored) { this.onPersonaChange(stored); this.refreshData(stored); }
-    }
-    // BACKEND PULL DISABLED: persona state stream
-    // this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
+    });
+    this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
 
-    // BACKEND PULL DISABLED: background face scan
-    // if (!this.isMobile) {
-    //   this.startBackgroundScan();
-    // }
+    if (!this.isMobile) {
+      this.startBackgroundScan();
+    }
   }
 
   ngOnDestroy(): void {
@@ -189,14 +180,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.log('[dashboard] face detectOnly', det);
       if (!det.detected) {
         this.proximity = null;
-        // BACKEND PULL DISABLED: presence update
-        // this.presenceSvc.update({ present: false, device: 'wall-display' }).subscribe();
+        this.presenceSvc.update({ present: false, device: 'wall-display' }).subscribe();
       } else {
         this.proximity = det.proximity || null;
         const distanceMeters = this.proximity === 'near' ? 1 : this.proximity === 'far' ? 3 : null;
         const personaId = this.personaState.current();
-        // BACKEND PULL DISABLED: presence update
-        // this.presenceSvc.update({ present: true, device: 'wall-display', distanceMeters, personaId }).subscribe();
+        this.presenceSvc.update({ present: true, device: 'wall-display', distanceMeters, personaId }).subscribe();
       }
     } catch (err) {
       console.error('Background compare error', err);
@@ -205,21 +194,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
 
   private refreshData(userId: string) {
-    // BACKEND PULL DISABLED: replace with mock data
-    // this.meds.getAll().subscribe(ms => {
-    //   this.medications = ms.filter(m => m.userId === userId);
-    //   this.computeTodaysMeds();
-    // });
-    // this.adherence.summary({ userId }).subscribe(s => this.summary = s);
-    // this.adherence.list({ userId, type: 'postponed' }).subscribe(evts => this.postponedEvents = evts || []);
-    this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
-    this.computeTodaysMeds();
-    this.watchMedIndex = 0;
-    this.state = this.buildState();
-    this.summary = { ...(MOCK_SUMMARY as any) };
-    this.postponedEvents = [...(MOCK_POSTPONED as any[])];
-    this.computeNextMedication();
-    this.state = this.buildState();
+    this.meds.getAll().subscribe(ms => {
+      this.medications = ms.filter(m => m.userId === userId);
+      this.computeTodaysMeds();
+      this.watchMedIndex = 0;
+      this.computeNextMedication();
+      this.state = this.buildState();
+    });
+    this.adherence.summary({ userId }).subscribe(s => {
+      this.summary = s;
+      this.state = this.buildState();
+    });
+    this.adherence.list({ userId, type: 'postponed' }).subscribe(evts => {
+      this.postponedEvents = evts || [];
+      this.state = this.buildState();
+    });
   }
 
   private computeTodaysMeds() {
@@ -331,13 +320,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.actionError = 'This medication is not actionable yet.';
       return;
     }
-    // BACKEND PULL DISABLED: adherence confirm
-    // const payload: any = { ... };
-    // this.adherence.confirm(payload).subscribe({ ... });
-    this.medStatuses.set(this.selectedMedication!._id!, 'confirmed');
-    const id = this.selectedPersonaId || this.personaState.current();
-    if (id) this.refreshData(id);
-    this.closeAction();
+    const payload: any = {
+      userId: this.selectedPersonaId || this.personaState.current(),
+      medicationId: this.selectedMedication._id,
+      scheduledAt: this.selectedScheduledAt,
+      confirmedAt: new Date(),
+      type: 'confirmed'
+    };
+    this.adherence.confirm(payload).subscribe({
+      next: () => {
+        this.medStatuses.set(this.selectedMedication!._id!, 'confirmed');
+        const id = this.selectedPersonaId || this.personaState.current();
+        if (id) this.refreshData(id);
+        this.closeAction();
+      },
+      error: (err) => {
+        console.error('Confirm error', err);
+        this.actionError = 'Failed to confirm medication. Please try again.';
+      }
+    });
   }
 
   postponeSelected(minutes: number = 5) {
@@ -346,13 +347,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.actionError = 'This medication is not actionable yet.';
       return;
     }
-    // BACKEND PULL DISABLED: adherence postpone
-    // const payload = { ... };
-    // this.adherence.postpone(payload).subscribe({ ... });
-    this.medStatuses.set(this.selectedMedication!._id!, 'postponed');
-    const id = this.selectedPersonaId || this.personaState.current();
-    if (id) this.refreshData(id);
-    this.closeAction();
+    const payload = {
+      medicationId: this.selectedMedication._id!,
+      scheduledAt: this.selectedScheduledAt!,
+      postponeMinutes: minutes
+    };
+    this.adherence.postpone(payload).subscribe({
+      next: () => {
+        this.medStatuses.set(this.selectedMedication!._id!, 'postponed');
+        const id = this.selectedPersonaId || this.personaState.current();
+        if (id) this.refreshData(id);
+        this.closeAction();
+      },
+      error: (err) => {
+        console.error('Postpone error', err);
+        this.actionError = 'Failed to postpone medication. Please try again.';
+      }
+    });
   }
 
   getNextScheduledDate(med: MedicationModel): Date | null {

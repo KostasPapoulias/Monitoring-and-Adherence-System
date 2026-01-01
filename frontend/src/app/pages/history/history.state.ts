@@ -12,6 +12,7 @@ export type TextSize = 'small' | 'medium' | 'large';
 
 export interface MedicationBreakdown {
   medicationId: string;
+  medicationName?: string;
   taken: number;
   missed: number;
   postponed: number;
@@ -25,6 +26,7 @@ export interface HistoryState {
   avgConfirmDelayMin: number | null;
   lastActionAt: Date | null;
   medicationBreakdown: MedicationBreakdown[];
+  medications?: any[];
   deviceMode: DeviceMode;
   isCompactMode: boolean;
   uiTextSize: TextSize;

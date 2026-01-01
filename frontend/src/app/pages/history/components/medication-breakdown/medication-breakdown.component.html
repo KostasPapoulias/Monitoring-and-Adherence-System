@@ -8,7 +8,7 @@
   <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
     <div *ngFor="let m of state.medicationBreakdown" class="py-1 border-t border-white/10 first:border-t-0">
       <div class="flex items-center justify-between gap-3">
-        <div class="font-bold text-white truncate">{{m.medicationId}}</div>
+        <div class="font-bold text-white truncate">{{ m.medicationName || m.medicationId }}</div>
         <div class="text-[10px] text-white/60 font-mono">{{m.total}}</div>
       </div>
       <div class="mt-2 grid grid-cols-3 gap-2 text-[11px]">
