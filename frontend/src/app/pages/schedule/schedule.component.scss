@@ -1,8 +1,14 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
   background: transparent;
+}
+
+.schedule-container {
+  height: 100%;
+  min-height: 0;
 }
 
 .dashboard-shell {
@@ -32,7 +38,14 @@
 
   &.watch-mode {
     .schedule-header h1 { font-size: 18px !important; line-height: 1.1 !important; }
-    .tab-btn { padding: 0.55rem 0.6rem; font-weight: 900; border-radius: 0.9rem; }
+    .tab-btn { 
+      padding: 0.75rem 1.2rem; 
+      font-weight: 900; 
+      border-radius: 0.9rem;
+      font-size: 16px;
+      flex: 1;
+      text-align: center;
+    }
 
     select {
       padding: 8px 10px !important;
@@ -40,11 +53,9 @@
       border-radius: 16px !important;
     }
 
-    /* reduce vertical chrome on watch */
     .schedule-header { margin-bottom: 8px !important; }
     .schedule-body > div { padding: 10px !important; border-radius: 16px !important; }
 
-    /* make list items more compact */
     .mobile-day .group { padding: 10px !important; gap: 10px !important; }
     .mobile-week .grid { gap: 10px !important; }
 
@@ -57,7 +68,6 @@
       font-size: 0.95rem;
     }
 
-    /* watch: tighten Day + Week card composition */
     .watch-day-card {
       padding: 12px !important;
     }
@@ -74,33 +84,35 @@
       flex: 0 0 auto;
     }
 
-    .watch-med-arrow {
-      position: absolute;
+    .arrow {
+      position: fixed;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 60;
-      width: 52px;
-      height: 28px;
-      border-radius: 14px;
+      z-index: 200;
+      width: 72px;
+      height: 48px;
+      border-radius: 20px;
       border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(0, 0, 0, 0.35);
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 24px;
       line-height: 1;
       user-select: none;
       -webkit-tap-highlight-color: transparent;
+      backdrop-filter: blur(8px);
     }
 
-    .watch-med-arrow:active {
-      background: rgba(0, 0, 0, 0.55);
+    .arrow:active {
+      background: rgba(0, 0, 0, 0.7);
+      transform: translateX(-50%) scale(0.95);
     }
 
-    .watch-med-arrow-up {
-      top: 6px;
+    .arrow.up {
+      top: calc(50% - min(320px, 92vw) / 2 - 110px);
     }
 
-    .watch-med-arrow-down {
-      bottom: 6px;
+    .arrow.down {
+      bottom: calc(50% - min(320px, 92vw) / 2 - 110px);
     }
   }
 
@@ -130,3 +142,8 @@
     &:active { transform: scale(0.98); }
   }
 }
+
+.custom-scrollbar {
+    &::-webkit-scrollbar { width:  15px; }
+    &::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+  }

@@ -1,16 +1,22 @@
 :host {
 	:host,
 html, body {
-  overflow: hidden; // disables app-level scroll
+  overflow: hidden; 
   height: 100%;
   width: 100%;
 }
 }
 
 .app-shell {
+	height: 100vh;
 	min-height: 100vh;
 	width: 100%;
 	background: #0f172a;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
 }
 
 /* SMARTWATCH BACKGROUND (bezel look) */
@@ -41,7 +47,7 @@ html, body {
 	border-radius: 10px;
 }
 
-/* SMARTWATCH SIZE (simulate small watch viewport) */
+/* SMARTWATCH SIZE  */
 .app-shell.mode-watch .content-wrapper {
 	max-width: none;
 	margin: 0;
@@ -61,37 +67,39 @@ html, body {
 	overflow: hidden;
 }
 
-/* WATCH: side arrows for page-to-page navigation */
-.app-shell.mode-watch .watch-arrow {
-	position: absolute;
+/* WATCH: left/right arrows for page-to-page navigation */
+.app-shell.mode-watch .watch-nav-arrow {
+	position: fixed;
 	top: 50%;
 	transform: translateY(-50%);
-	z-index: 120;
-	width: 34px;
-	height: 54px;
+	z-index: 200;
+	width: 48px;
+	height: 72px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border-radius: 16px;
+	border-radius: 20px;
 	border: 1px solid rgba(255, 255, 255, 0.12);
-	background: rgba(0, 0, 0, 0.35);
-	color: rgba(255, 255, 255, 0.85);
-	font-size: 22px;
+	background: rgba(0, 0, 0, 0.5);
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 32px;
 	line-height: 1;
 	user-select: none;
 	-webkit-tap-highlight-color: transparent;
+	backdrop-filter: blur(8px);
 }
 
-.app-shell.mode-watch .watch-arrow:active {
-	background: rgba(0, 0, 0, 0.5);
+.app-shell.mode-watch .watch-nav-arrow:active {
+	background: rgba(0, 0, 0, 0.7);
+	transform: translateY(-50%) scale(0.95);
 }
 
-.app-shell.mode-watch .watch-arrow-left {
-	left: -18px;
+.app-shell.mode-watch .watch-nav-arrow-left {
+	left: calc(50% - min(320px, 92vw) / 2 - 60px);
 }
 
-.app-shell.mode-watch .watch-arrow-right {
-	right: -18px;
+.app-shell.mode-watch .watch-nav-arrow-right {
+	right: calc(50% - min(320px, 92vw) / 2 - 60px);
 }
 
 .app-shell.mode-watch .route-content {
@@ -219,7 +227,7 @@ html, body {
 /* PHONE CONTENT ONLY */
 .phone-content {
   padding: 12px;
-  padding-bottom: 92px; // hard reserve space for fixed nav
+  padding-bottom: 150px;
 }
 
 .mode-watch .phone-content {
@@ -232,7 +240,6 @@ html, body {
 	padding-bottom: 96px;
 }
 
-/* FIXED BOTTOM NAV */
 .bottom-nav {
   position: fixed;
   left: 0;

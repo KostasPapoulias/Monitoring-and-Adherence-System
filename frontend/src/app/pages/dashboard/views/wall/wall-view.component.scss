@@ -1,0 +1,39 @@
+.wall-cards {
+  display: flex;
+  gap: 14px;
+  padding: 6px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  
+  &::-webkit-scrollbar { height: 8px; }
+  &::-webkit-scrollbar-thumb { 
+    background: rgba(255,255,255,0.15); 
+    border-radius: 10px; 
+  }
+  &::-webkit-scrollbar-track { 
+    background: rgba(255,255,255,0.05); 
+    border-radius: 10px; 
+  }
+}
+.wall-card {
+  border-radius: 16px;
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.05);
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 0 0 calc(40% - 7px);
+  min-width: 280px;
+  max-width: 380px;
+  scroll-snap-align: start;
+}
+.wall-card .time { font-family: "IBM Plex Mono", monospace; font-size: 18px; opacity: 0.8; }
+.wall-card .time.alert { color: #ef4444; }
+.wall-card .name { font-weight: 800; }
+.wall-card .dose { opacity: 0.7; font-size: 13px; }
+.wall-card .badge { padding: 6px 10px; border-radius: 12px; font-weight: 700; font-size: 12px; text-transform: uppercase; }

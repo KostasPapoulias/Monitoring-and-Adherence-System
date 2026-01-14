@@ -1,11 +1,15 @@
 :host { 
-  display: block; 
+  display: flex;
+  flex-direction: column;
   height: 100%;
   min-height: 0;
   background: transparent;
 }
 
 .dashboard-shell {
+  height: 100%;
+  min-height: 0;
+  margin-bottom: 10px;
   background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 400px),
               radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 400px);
 }
@@ -27,7 +31,6 @@
   to { opacity: 1; transform: translateX(0); }
 }
 
-/* SMARTWATCH MODE: make History fit cleanly */
 :host-context(.mode-watch) {
   .dashboard-shell {
     padding: 10px !important;
@@ -91,32 +94,34 @@
   }
 
   .watch-med-arrow {
-    position: absolute;
+    position: fixed;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 60;
-    width: 52px;
-    height: 28px;
-    border-radius: 14px;
+    z-index: 200;
+    width: 72px;
+    height: 48px;
+    border-radius: 20px;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(0, 0, 0, 0.35);
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 16px;
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 20px;
     line-height: 1;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(8px);
   }
 
   .watch-med-arrow:active {
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateX(-50%) scale(0.95);
   }
 
   .watch-med-arrow-up {
-    top: 6px;
+    top: calc(50% - min(320px, 92vw) / 2 - 60px);
   }
 
   .watch-med-arrow-down {
-    bottom: 6px;
+    bottom: calc(50% - min(320px, 92vw) / 2 - 60px);
   }
 
   .watch-type-btn {
@@ -153,4 +158,12 @@
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.95);
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 15px; height: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
 }

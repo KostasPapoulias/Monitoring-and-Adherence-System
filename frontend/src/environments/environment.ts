@@ -10,12 +10,10 @@ const apiHost = (() => {
 
 export const environment = {
   production: false,
-  // Resolve backend using the device's current hostname so phones on LAN can reach it
   host: apiHost,
   // Use public CDN for face-api.js models to avoid missing local assets
   faceModelsPath: 'https://justadudewhohacks.github.io/face-api.js/models',
-  // Enable frontend-only mode without backend
-  offline: true
+  offline: false
 };
 /*
  * For easier debugging in development mode, you can import the following file

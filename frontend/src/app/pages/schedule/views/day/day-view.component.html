@@ -1,0 +1,59 @@
+<div class="flex-1 p-3 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-day">
+  <div class="flex items-center justify-between mb-1">
+    <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ state.deviceMode === 'smartwatch' ? 'D' : 'Today' }}</div>
+    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ state.medications.length }}</div>
+  </div>
+  <div class="h-px bg-white/10 mb-3"></div>
+
+  <!-- SMARTWATCH: one medication at a time -->
+  <div *ngIf="state.deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
+    <button type="button" class="arrow up" (click)="prevMed.emit()" aria-label="Previous medication">˄</button>
+    <button type="button" class="arrow down" (click)="nextMed.emit()" aria-label="Next medication">˅</button>
+
+    <div *ngIf="state.currentMed as m" class="h-full flex flex-col justify-center">
+      <div class="group watch-day-card flex items-center gap-3 p-1 rounded-2xl bg-black/20 border border-white/10">
+        <div class="watch-accent w-2 h-10 rounded-full bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
+
+        <div class="min-w-0 flex-1">
+          <div class="time-badge">
+            <span class="block text-xl font-mono text-white">{{ getNextDoseTime(m) }}</span>
+          </div>
+          <div class="text-base font-black text-white truncate">{{m.name}}</div>
+          <div class="text-xs text-white/70 truncate">{{m.dosage}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NON-WATCH: list -->
+  <div *ngIf="state.deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+    <div class="space-y-2 md:space-y-3">
+      <div *ngFor="let m of state.medications"
+           class="group flex gap-4 md:gap-6 p-3 md:p-4 rounded-2xl bg-black/20 border border-white/10 hover:bg-black/30 transition-all"
+           [ngClass]="{ 'flex-col items-start': state.isCompactMode, 'flex-row items-center': !state.isCompactMode }">
+
+        <div class="w-2 h-12 rounded-full bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
+
+        <div class="time-badge flex-none" [ngClass]="{ 'w-full': state.isCompactMode, 'w-24 md:w-28': !state.isCompactMode }">
+          <span class="block text-sm md:text-lg font-mono text-white">{{ getNextDoseTime(m) }}</span>
+          <span class="block text-[10px] text-white/40 uppercase font-bold">Next Dose</span>
+        </div>
+
+        <div class="flex-1 min-w-0">
+          <div class="text-sm md:text-lg font-bold text-white truncate">{{m.name}}</div>
+          <div class="flex gap-3 text-xs text-white/50 flex-wrap">
+            <span>Dose: <span class="text-white/80">{{m.dosage}}</span></span>
+            <span>Route: <span class="text-white/80">Oral</span></span>
+            <span *ngIf="doseCount(m) > 0">Times: <span class="text-white/80 font-mono">{{ doseCount(m) }}</span></span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 justify-end">
+          <div *ngFor="let t of m.times" class="px-2 py-1 bg-white/5 rounded-lg border border-white/10 text-xs font-mono">
+            {{t}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

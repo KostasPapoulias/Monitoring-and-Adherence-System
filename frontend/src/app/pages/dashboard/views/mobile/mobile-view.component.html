@@ -1,0 +1,11 @@
+<div class="mobile-cards custom-scrollbar">
+  <app-med-card
+    *ngFor="let m of state.todaysMeds"
+    [med]="m"
+    [status]="getStatus(m)"
+    [alert]="hasAlertActive(m)"
+    [actionable]="isActionable(m)"
+    (select)="open.emit(m)">
+  </app-med-card>
+</div>
+

@@ -10,6 +10,7 @@ import { PersonaStateService } from 'src/app/global/services/personas/persona-st
 import { PresenceService, PresenceState } from 'src/app/global/services/presence/presence.service';
 import { FaceRecognitionService } from 'src/app/global/services/face/face-recognition.service';
 import { MOCK_MEDICATIONS, MOCK_PERSONAS, MOCK_POSTPONED, MOCK_SUMMARY } from 'src/app/global/mock/mock-data';
+import { DashboardState, DeviceMode } from '../dashboard/dashboard.state';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +31,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   presence: PresenceState | null = null;
   isWallDisplay = false;
   isMobile = false;
-  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
+  deviceMode: DeviceMode = DeviceMode.WALL;
   viewMode: 'general' | 'detailed' = 'general';
   detailedPersona: any = null;
   detailedMeds: any[] = [];
@@ -46,6 +47,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   actionError: string | null = null;
   // med status for visual feedback
   medStatuses: Map<string, 'postponed' | 'confirmed'> = new Map();
+
+  // Cached status message to avoid infinite change detection
+  statusMessage = { 
+    text: '✓ All Caught Up',
+    detail: '',
+    class: 'bg-green-600/20 border-green-500 text-green-200' 
+  };
+
+  // View model consumed by child view components
+  state: DashboardState = {
+    todaysMeds: [],
+    nextMedication: null,
+    medStatuses: new Map(),
+    deviceMode: DeviceMode.WALL,
+  };
 
   constructor(
     private meds: MedicationsService,
@@ -65,37 +81,28 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.selectedPersonaId = qpPersona;
       this.personaState.set(qpPersona);
     }
-    // BACKEND PULL DISABLED: presence subscription
-    // this.presenceSvc.state().subscribe(state => {
-    //   this.presence = state;
-    //   this.isWallDisplay = state?.device === 'wall-display';
-    //   this.viewMode = (state?.viewMode || 'general') as any;
-    //   this.detailedPersona = state?.persona || null;
-    //   this.detailedMeds = state?.meds || [];
-    //   if (state?.persona?._id) {
-    //     this.selectedPersonaId = state.persona._id;
-    //   }
-    //   console.log('[dashboard] presence state', state);
-    // });
+    this.presenceSvc.state().subscribe(state => {
+      this.presence = state;
+      this.isWallDisplay = state?.device === 'wall-display';
+      this.viewMode = (state?.viewMode || 'general') as any;
+      this.detailedPersona = state?.persona || null;
+      this.detailedMeds = state?.meds || [];
+      if (state?.persona?._id) {
+        this.selectedPersonaId = state.persona._id;
+      }
+      console.log('[dashboard] presence state', state);
+    });
 
-    // BACKEND PULL DISABLED: personas list
-    // this.personasSvc.list().subscribe(list => {
-    //   this.personas = list;
-    //   const stored = this.personaState.current() || (list[0]?._id ?? null);
-    //   if (stored) { this.onPersonaChange(stored); }
-    // });
-    this.personas = [...(MOCK_PERSONAS as any[])];
-    {
-      const stored = this.personaState.current() || (this.personas[0]?._id ?? null);
+    this.personasSvc.list().subscribe(list => {
+      this.personas = list;
+      const stored = this.personaState.current() || (list[0]?._id ?? null);
       if (stored) { this.onPersonaChange(stored); this.refreshData(stored); }
-    }
-    // BACKEND PULL DISABLED: persona state stream
-    // this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
+    });
+    this.personaState.get().subscribe(id => { if (id) this.refreshData(id); });
 
-    // BACKEND PULL DISABLED: background face scan
-    // if (!this.isMobile) {
-    //   this.startBackgroundScan();
-    // }
+    if (!this.isMobile) {
+      this.startBackgroundScan();
+    }
   }
 
   ngOnDestroy(): void {
@@ -103,18 +110,20 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   onPersonaChange(id: string) {
+    if (this.selectedPersonaId === id) return; // Prevent infinite loop
     this.selectedPersonaId = id;
     this.personaState.set(id);
     this.medStatuses.clear();
 
     this.detailedPersona = this.personas.find(p => p._id === id);
-    this.deviceMode = (this.detailedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
+    this.deviceMode = (this.detailedPersona?.devicePrefs?.primaryDevice as DeviceMode) || DeviceMode.WALL;
     const compact = this.deviceMode !== 'wall-display';
     this.isWallDisplay = !compact;
     this.isMobile = compact;
 
     this.viewMode = 'detailed';
     this.watchMedIndex = 0;
+    this.state = this.buildState();
   }
 
   private async startBackgroundScan() {
@@ -171,14 +180,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       console.log('[dashboard] face detectOnly', det);
       if (!det.detected) {
         this.proximity = null;
-        // BACKEND PULL DISABLED: presence update
-        // this.presenceSvc.update({ present: false, device: 'wall-display' }).subscribe();
+        this.presenceSvc.update({ present: false, device: 'wall-display' }).subscribe();
       } else {
         this.proximity = det.proximity || null;
         const distanceMeters = this.proximity === 'near' ? 1 : this.proximity === 'far' ? 3 : null;
         const personaId = this.personaState.current();
-        // BACKEND PULL DISABLED: presence update
-        // this.presenceSvc.update({ present: true, device: 'wall-display', distanceMeters, personaId }).subscribe();
+        this.presenceSvc.update({ present: true, device: 'wall-display', distanceMeters, personaId }).subscribe();
       }
     } catch (err) {
       console.error('Background compare error', err);
@@ -187,19 +194,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
   };
 
   private refreshData(userId: string) {
-    // BACKEND PULL DISABLED: replace with mock data
-    // this.meds.getAll().subscribe(ms => {
-    //   this.medications = ms.filter(m => m.userId === userId);
-    //   this.computeTodaysMeds();
-    // });
-    // this.adherence.summary({ userId }).subscribe(s => this.summary = s);
-    // this.adherence.list({ userId, type: 'postponed' }).subscribe(evts => this.postponedEvents = evts || []);
-    this.medications = (MOCK_MEDICATIONS as any[]).filter(m => m.userId === userId) as any;
-    this.computeTodaysMeds();
-    this.watchMedIndex = 0;
-    this.summary = { ...(MOCK_SUMMARY as any) };
-    this.postponedEvents = [...(MOCK_POSTPONED as any[])];
-    this.computeNextMedication();
+    this.meds.getAll().subscribe(ms => {
+      this.medications = ms.filter(m => m.userId === userId);
+      this.computeTodaysMeds();
+      this.watchMedIndex = 0;
+      this.computeNextMedication();
+      this.state = this.buildState();
+    });
+    this.adherence.summary({ userId }).subscribe(s => {
+      this.summary = s;
+      this.state = this.buildState();
+    });
+    this.adherence.list({ userId, type: 'postponed' }).subscribe(evts => {
+      this.postponedEvents = evts || [];
+      this.state = this.buildState();
+    });
   }
 
   private computeTodaysMeds() {
@@ -260,6 +269,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
     return { text: 'OK', class: 'bg-white/5 border-white/10 text-white/80' };
   }
 
+  private buildState(): DashboardState {
+    this.statusMessage = this.computeStatusMessage();
+    return {
+      todaysMeds: this.todaysMeds,
+      nextMedication: this.nextMedication,
+      medStatuses: this.medStatuses,
+      deviceMode: this.deviceMode,
+    };
+  }
+
   private computeNextMedication() {
     const now = new Date();
     let best: { med: MedicationModel; time: string; date: Date } | null = null;
@@ -301,13 +320,25 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.actionError = 'This medication is not actionable yet.';
       return;
     }
-    // BACKEND PULL DISABLED: adherence confirm
-    // const payload: any = { ... };
-    // this.adherence.confirm(payload).subscribe({ ... });
-    this.medStatuses.set(this.selectedMedication!._id!, 'confirmed');
-    const id = this.selectedPersonaId || this.personaState.current();
-    if (id) this.refreshData(id);
-    this.closeAction();
+    const payload: any = {
+      userId: this.selectedPersonaId || this.personaState.current(),
+      medicationId: this.selectedMedication._id,
+      scheduledAt: this.selectedScheduledAt,
+      confirmedAt: new Date(),
+      type: 'confirmed'
+    };
+    this.adherence.confirm(payload).subscribe({
+      next: () => {
+        this.medStatuses.set(this.selectedMedication!._id!, 'confirmed');
+        const id = this.selectedPersonaId || this.personaState.current();
+        if (id) this.refreshData(id);
+        this.closeAction();
+      },
+      error: (err) => {
+        console.error('Confirm error', err);
+        this.actionError = 'Failed to confirm medication. Please try again.';
+      }
+    });
   }
 
   postponeSelected(minutes: number = 5) {
@@ -316,13 +347,23 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.actionError = 'This medication is not actionable yet.';
       return;
     }
-    // BACKEND PULL DISABLED: adherence postpone
-    // const payload = { ... };
-    // this.adherence.postpone(payload).subscribe({ ... });
-    this.medStatuses.set(this.selectedMedication!._id!, 'postponed');
-    const id = this.selectedPersonaId || this.personaState.current();
-    if (id) this.refreshData(id);
-    this.closeAction();
+    const payload = {
+      medicationId: this.selectedMedication._id!,
+      scheduledAt: this.selectedScheduledAt!,
+      postponeMinutes: minutes
+    };
+    this.adherence.postpone(payload).subscribe({
+      next: () => {
+        this.medStatuses.set(this.selectedMedication!._id!, 'postponed');
+        const id = this.selectedPersonaId || this.personaState.current();
+        if (id) this.refreshData(id);
+        this.closeAction();
+      },
+      error: (err) => {
+        console.error('Postpone error', err);
+        this.actionError = 'Failed to postpone medication. Please try again.';
+      }
+    });
   }
 
   getNextScheduledDate(med: MedicationModel): Date | null {
@@ -380,13 +421,17 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   return classes.join(' ');
 }
-get statusMessage() {
+
+private computeStatusMessage() {
   const now = new Date();
   
   const alertMed = this.todaysMeds.find(m => this.hasAlertActive(m));
   if (alertMed) {
+    const scheduled = this.getNextScheduledDate(alertMed);
+    const timeStr = scheduled ? scheduled.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : 'now';
     return { 
-      text: 'Alert',
+      text: `⚠️ URGENT: ${alertMed.name} Alert`,
+      detail: `Scheduled for ${timeStr} - Immediate action required`,
       class: 'bg-red-600/20 border-red-500 text-red-200' 
     };
   }
@@ -398,29 +443,50 @@ get statusMessage() {
     return diff > 10 && !this.medStatuses.has(m._id!);
   });
   if (overdueMed) {
+    const scheduled = this.getNextScheduledDate(overdueMed);
+    const minsLate = scheduled ? Math.floor((now.getTime() - scheduled.getTime()) / 60000) : 0;
     return { 
-      text: 'Missed',
+      text: `⏰ Missed Dose: ${overdueMed.name}`,
+      detail: `${minsLate} minutes overdue - Please confirm or postpone`,
       class: 'bg-orange-600/20 border-orange-500 text-orange-200' 
     };
   }
 
   const actionableMed = this.todaysMeds.find(m => this.isActionable(m) && !this.medStatuses.has(m._id!));
   if (actionableMed) {
+    const scheduled = this.getNextScheduledDate(actionableMed);
+    const timeStr = scheduled ? scheduled.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : 'now';
     return { 
-      text: 'Due',
+      text: `💊 Next Dose: ${actionableMed.name}`,
+      detail: `Scheduled for ${timeStr} - Ready to confirm`,
       class: 'bg-blue-600/20 border-blue-500 text-blue-200' 
     };
   }
 
   if (Array.from(this.medStatuses.values()).includes('postponed')) {
+    const postponedCount = Array.from(this.medStatuses.values()).filter(s => s === 'postponed').length;
     return { 
-      text: 'Postponed',
+      text: `⏸️ Postponed Medications`,
+      detail: `${postponedCount} dose${postponedCount > 1 ? 's' : ''} postponed - Remember to take soon`,
       class: 'bg-yellow-600/20 border-yellow-500 text-yellow-200' 
     };
   }
 
+  const confirmedCount = Array.from(this.medStatuses.values()).filter(s => s === 'confirmed').length;
+  const nextMed = this.todaysMeds.find(m => !this.medStatuses.has(m._id || ''));
+  if (nextMed) {
+    const scheduled = this.getNextScheduledDate(nextMed);
+    const timeStr = scheduled ? scheduled.toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'}) : 'later';
+    return { 
+      text: `✓ All Caught Up`,
+      detail: `${confirmedCount} confirmed today - Next: ${nextMed.name} at ${timeStr}`,
+      class: 'bg-green-600/20 border-green-500 text-green-200' 
+    };
+  }
+
   return { 
-    text: 'OK',
+    text: `✓ All Medications Taken`,
+    detail: `${confirmedCount} dose${confirmedCount !== 1 ? 's' : ''} completed today - Great job!`,
     class: 'bg-green-600/20 border-green-500 text-green-200' 
   };
 }

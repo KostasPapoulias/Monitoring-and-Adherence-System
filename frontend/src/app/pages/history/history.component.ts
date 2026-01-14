@@ -5,8 +5,10 @@ import { ReportSummaryModel } from 'src/app/global/models/reports/report-summary
 import { PersonasService } from 'src/app/global/services/personas/personas.service';
 import { PersonaModel } from 'src/app/global/models/personas/persona.model';
 import { PersonaStateService } from 'src/app/global/services/personas/persona-state.service';
+import { MedicationsService } from 'src/app/global/services/medications/medications.service';
 import { environment } from 'src/environments/environment';
 import { MOCK_ADHERENCE_EVENTS, MOCK_PERSONAS } from 'src/app/global/mock/mock-data';
+import { HistoryState, DeviceMode, TextSize, MedicationBreakdown } from './history.state';
 
 @Component({
   selector: 'app-history',
@@ -19,34 +21,39 @@ export class HistoryComponent implements OnInit {
   personas: PersonaModel[] = [];
   selectedPersonaId: string | null = null;
   selectedPersona: PersonaModel | null = null;
+  medications: any[] = [];
 
-  deviceMode: 'wall-display' | 'smartphone' | 'smartwatch' | 'smart-speaker' = 'wall-display';
+  deviceMode: DeviceMode = DeviceMode.WALL;
   isCompactMode = false;
-  uiTextSize: 'small' | 'medium' | 'large' = 'medium';
+  uiTextSize: TextSize = 'medium';
+
+  showKpi = true;
+  showMedBreakdown = true;
 
   eventIndex = 0;
 
   adherenceRatePct = 0;
   avgConfirmDelayMin: number | null = null;
   lastActionAt: Date | null = null;
-  medicationBreakdown: Array<{ medicationId: string; taken: number; missed: number; postponed: number; total: number }> = [];
+  medicationBreakdown: MedicationBreakdown[] = [];
 
-  constructor(private adherence: AdherenceService, private personasSvc: PersonasService, private personaState: PersonaStateService) {}
+  state: HistoryState = {
+    events: [],
+    summary: new ReportSummaryModel(),
+    adherenceRatePct: 0,
+    avgConfirmDelayMin: null,
+    lastActionAt: null,
+    medicationBreakdown: [],
+    medications: [],
+    deviceMode: DeviceMode.WALL,
+    isCompactMode: false,
+    uiTextSize: 'medium',
+    currentEvent: null,
+  };
+
+  constructor(private adherence: AdherenceService, private personasSvc: PersonasService, private personaState: PersonaStateService, private medsSvc: MedicationsService) {}
 
   ngOnInit(): void {
-    if (environment.offline) {
-      this.personas = [...(MOCK_PERSONAS as any[])];
-      const stored = this.personaState.current() || (this.personas[0]?._id ?? null);
-      if (stored) { this.onPersonaChange(stored); this.refreshData(stored); }
-      this.personaState.get().subscribe(id => {
-        if (id) {
-          this.onPersonaChange(id);
-          this.refreshData(id);
-        }
-      });
-      return;
-    }
-
     this.personasSvc.list().subscribe(list => {
       this.personas = list;
       const stored = this.personaState.current() || (list[0]?._id ?? null);
@@ -61,13 +68,15 @@ export class HistoryComponent implements OnInit {
   }
 
   onPersonaChange(id: string) {
+    if (this.selectedPersonaId === id) return; // Prevent infinite loop
     this.selectedPersonaId = id;
     this.personaState.set(id);
     this.selectedPersona = this.personas.find(p => (p as any)._id === id) || null;
-    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as any) || 'wall-display';
-    this.isCompactMode = this.deviceMode !== 'wall-display';
-    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as any) || 'medium';
+    this.deviceMode = (this.selectedPersona?.devicePrefs?.primaryDevice as DeviceMode) || DeviceMode.WALL;
+    this.isCompactMode = this.deviceMode !== DeviceMode.WALL;
+    this.uiTextSize = (this.selectedPersona?.devicePrefs?.ui?.textSize as TextSize) || 'medium';
     this.eventIndex = 0;
+    this.state = this.buildState();
   }
 
   get currentEvent(): AdherenceEventModel | null {
@@ -79,23 +88,28 @@ export class HistoryComponent implements OnInit {
   prevEvent() {
     if (!this.events || this.events.length === 0) return;
     this.eventIndex = (this.eventIndex - 1 + this.events.length) % this.events.length;
+    this.state = this.buildState();
   }
 
   nextEvent() {
     if (!this.events || this.events.length === 0) return;
     this.eventIndex = (this.eventIndex + 1) % this.events.length;
+    this.state = this.buildState();
   }
-  private refreshData(userId: string) {
-    if (environment.offline) {
-      const all = (MOCK_ADHERENCE_EVENTS as any[]).filter(e => e.userId === userId);
-      // newest first
-      all.sort((a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime());
-      this.events = all.map(e => new AdherenceEventModel(e as any));
-      this.eventIndex = 0;
-      this.computeAnalytics();
-      return;
-    }
 
+  toggleKpi() {
+    this.showKpi = !this.showKpi;
+  }
+
+  toggleMedBreakdown() {
+    this.showMedBreakdown = !this.showMedBreakdown;
+  }
+  
+  private refreshData(userId: string) {
+    this.medsSvc.getAll().subscribe(meds => {
+      this.medications = meds.filter(m => m.userId === userId);
+      this.computeAnalytics();
+    });
     this.adherence.list({ userId }).subscribe(e => {
       this.events = e;
       this.eventIndex = 0;
@@ -133,10 +147,12 @@ export class HistoryComponent implements OnInit {
       .sort((a, b) => b.getTime() - a.getTime())[0];
     this.lastActionAt = last || null;
 
-    const byMed = new Map<string, { medicationId: string; taken: number; missed: number; postponed: number; total: number }>();
+    const byMed = new Map<string, { medicationId: string; medicationName?: string; taken: number; missed: number; postponed: number; total: number }>();
     for (const e of this.events) {
       const med = e.medicationId || 'Unknown';
-      const entry = byMed.get(med) || { medicationId: med, taken: 0, missed: 0, postponed: 0, total: 0 };
+      const medData = this.medications.find(m => m._id === med);
+      const medName = medData?.name || 'Unknown';
+      const entry = byMed.get(med) || { medicationId: med, medicationName: medName, taken: 0, missed: 0, postponed: 0, total: 0 };
       entry.total += 1;
       if (e.type === 'taken') entry.taken += 1;
       if (e.type === 'missed') entry.missed += 1;
@@ -144,6 +160,7 @@ export class HistoryComponent implements OnInit {
       byMed.set(med, entry);
     }
     this.medicationBreakdown = Array.from(byMed.values()).sort((a, b) => b.total - a.total);
+    this.state = this.buildState();
   }
 
   cancelTaken(e: AdherenceEventModel) {
@@ -184,5 +201,21 @@ export class HistoryComponent implements OnInit {
     // keep timestamps consistent for analytics display
     e.confirmedAt = new Date().toISOString();
     this.computeAnalytics();
+  }
+
+  private buildState(): HistoryState {
+    return {
+      events: this.events,
+      summary: this.summary,
+      adherenceRatePct: this.adherenceRatePct,
+      avgConfirmDelayMin: this.avgConfirmDelayMin,
+      lastActionAt: this.lastActionAt,
+      medicationBreakdown: this.medicationBreakdown,
+      medications: this.medications,
+      deviceMode: this.deviceMode,
+      isCompactMode: this.isCompactMode,
+      uiTextSize: this.uiTextSize,
+      currentEvent: this.currentEvent,
+    };
   }
 }

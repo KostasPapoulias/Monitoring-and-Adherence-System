@@ -6,7 +6,6 @@
        'text-large': uiTextSize === 'large'
      }">
 
-  <!-- HEADER (History-like) -->
   <div class="schedule-header flex items-center gap-3 mb-2 md:mb-4 flex-wrap">
     <h1 *ngIf="deviceMode !== 'smartwatch'" class="m-0 text-2xl md:text-4xl font-bold tracking-tight">Medication Schedule</h1>
     <select class="ml-auto bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-sm md:text-base w-full md:w-auto focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
@@ -15,8 +14,10 @@
     </select>
   </div>
 
-  <!-- TABS (fixed, no outer scroll) -->
-  <div class="flex gap-2 mb-3 md:mb-4 bg-black/20 p-1.5 rounded-2xl w-fit border border-white/5">
+    <div class="flex gap-1 mb-2 md:mb-4 bg-black/20 p-0.1 rounded-2xl border border-white/5"
+      [class.w-fit]="deviceMode !== 'smartwatch'"
+      [class.w-full]="deviceMode === 'smartwatch'"
+      [class.justify-center]="deviceMode === 'smartwatch'">
       <button (click)="setView('day')"
         [class.active-tab]="view==='day'" class="tab-btn">
         <span *ngIf="deviceMode !== 'smartwatch'">Today</span>
@@ -34,170 +35,27 @@
       </button>
   </div>
 
-  <!-- BODY (stable height; each tab scrolls independently) -->
-  <div class="schedule-body flex-1 min-h-0 overflow-hidden flex flex-col">
+  <div class="schedule-body flex-1 min-h-0 overflow-auto custom-scrollbar flex flex-col">
 
-    <!-- DAY VIEW -->
-    <div *ngIf="view==='day'" class="flex-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-day">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ deviceMode === 'smartwatch' ? 'D' : 'Today' }}</div>
-        <div *ngIf="deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ medications.length }}</div>
-      </div>
-      <div class="h-px bg-white/10 mb-3"></div>
+    <app-day-view *ngIf="view==='day'"
+      [state]="state"
+      [getNextDoseTime]="getNextDoseTime.bind(this)"
+      [doseCount]="doseCount.bind(this)"
+      (prevMed)="prevMed()"
+      (nextMed)="nextMed()">
+    </app-day-view>
 
-      <!-- SMARTWATCH: one medication at a time -->
-      <div *ngIf="deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
-        <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevMed()" aria-label="Previous medication">˄</button>
-        <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextMed()" aria-label="Next medication">˅</button>
+    <app-week-view *ngIf="view==='week'"
+      [state]="state"
+      (prevMed)="prevMed()"
+      (nextMed)="nextMed()">
+    </app-week-view>
 
-        <div *ngIf="currentMed as m" class="h-full flex flex-col justify-center">
-          <div class="group watch-day-card flex items-center gap-3 p-4 rounded-2xl bg-black/20 border border-white/10">
-            <div class="watch-accent w-2 h-10 rounded-full bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
-
-            <div class="min-w-0 flex-1">
-              <div class="time-badge">
-                <span class="block text-xl font-mono text-white">{{ getNextDoseTime(m) }}</span>
-              </div>
-              <div class="text-base font-black text-white truncate">{{m.name}}</div>
-              <div class="text-xs text-white/70 truncate">{{m.dosage}}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- NON-WATCH: list -->
-      <div *ngIf="deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
-        <div class="space-y-2 md:space-y-3">
-          <div *ngFor="let m of medications"
-               class="group flex gap-4 md:gap-6 p-3 md:p-4 rounded-2xl bg-black/20 border border-white/10 hover:bg-black/30 transition-all"
-               [ngClass]="{ 'flex-col items-start': isCompactMode, 'flex-row items-center': !isCompactMode }">
-
-            <div class="w-2 h-12 rounded-full bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.4)]"></div>
-
-            <div class="time-badge flex-none" [ngClass]="{ 'w-full': isCompactMode, 'w-24 md:w-28': !isCompactMode }">
-              <span class="block text-sm md:text-lg font-mono text-white">{{ getNextDoseTime(m) }}</span>
-              <span class="block text-[10px] text-white/40 uppercase font-bold">Next Dose</span>
-            </div>
-
-            <div class="flex-1 min-w-0">
-              <div class="text-sm md:text-lg font-bold text-white truncate">{{m.name}}</div>
-              <div class="flex gap-3 text-xs text-white/50 flex-wrap">
-                <span>Dose: <span class="text-white/80">{{m.dosage}}</span></span>
-                <span>Route: <span class="text-white/80">Oral</span></span>
-                <span *ngIf="doseCount(m) > 0">Times: <span class="text-white/80 font-mono">{{ doseCount(m) }}</span></span>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap gap-2 justify-end">
-              <div *ngFor="let t of m.times" class="px-2 py-1 bg-white/5 rounded-lg border border-white/10 text-xs font-mono">
-                {{t}}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- WEEK VIEW -->
-    <div *ngIf="view==='week'" class="flex-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-week">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ deviceMode === 'smartwatch' ? 'W' : 'This Week' }}</div>
-        <div *ngIf="deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ medications.length }}</div>
-      </div>
-      <div class="h-px bg-white/10 mb-3"></div>
-
-      <!-- SMARTWATCH: one medication at a time -->
-      <div *ngIf="deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
-        <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevMed()" aria-label="Previous medication">˄</button>
-        <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextMed()" aria-label="Next medication">˅</button>
-
-        <div *ngIf="currentMed as m" class="h-full flex flex-col justify-center">
-          <div class="watch-week-card p-4 rounded-2xl bg-black/20 border border-white/10">
-            <div class="text-emerald-400 font-black text-base truncate">{{m.name}}</div>
-            <div class="text-white/70 text-xs truncate">{{m.dosage}}</div>
-            <div class="mt-2 inline-block text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-1 rounded-xl uppercase font-black">{{m.frequency}}</div>
-            <div class="mt-3 flex flex-wrap gap-1">
-              <span *ngFor="let day of ['M','T','W','T','F','S','S']" class="watch-week-chip w-6 h-6 flex items-center justify-center rounded-lg text-[9px] border border-white/5 bg-white/5">
-                {{day}}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- NON-WATCH: grid -->
-      <div *ngIf="deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
-        <div class="grid grid-cols-1 gap-3">
-          <div *ngFor="let m of medications" class="p-4 rounded-2xl bg-black/20 border border-white/10 hover:bg-black/30 transition-all">
-            <div class="flex justify-between items-start mb-2 gap-3">
-              <h4 class="text-md font-bold text-emerald-400 m-0 truncate">{{m.name}}</h4>
-              <span class="text-[9px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-md uppercase font-bold flex-none">{{m.frequency}}</span>
-            </div>
-            <div class="flex flex-wrap gap-2 text-sm">
-              <div class="flex justify-between w-full">
-                <span class="text-white/40">Dosage</span>
-                <span class="text-white font-medium">{{m.dosage}}</span>
-              </div>
-              <div class="flex flex-wrap gap-1 mt-1">
-                <span *ngFor="let day of ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']"
-                      class="w-7 h-7 flex items-center justify-center rounded-lg text-[10px] border border-white/5 bg-white/5">
-                  {{day}}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- MONTH VIEW -->
-    <div *ngIf="view==='month'" class="flex-1 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-month">
-      <div class="flex items-center justify-between mb-3">
-        <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ deviceMode === 'smartwatch' ? 'M' : 'Monthly Overview' }}</div>
-        <div *ngIf="deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ medications.length }}</div>
-      </div>
-      <div class="h-px bg-white/10 mb-3"></div>
-
-      <!-- SMARTWATCH: one medication at a time -->
-      <div *ngIf="deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
-        <button type="button" class="watch-med-arrow watch-med-arrow-up" (click)="prevMed()" aria-label="Previous medication">˄</button>
-        <button type="button" class="watch-med-arrow watch-med-arrow-down" (click)="nextMed()" aria-label="Next medication">˅</button>
-
-        <div *ngIf="currentMed as m" class="h-full flex flex-col justify-center">
-          <div class="p-4 rounded-2xl bg-black/20 border border-white/10">
-            <div class="text-white font-black text-base truncate">{{m.name}}</div>
-            <div class="text-white/70 text-sm truncate">{{m.frequency}}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- NON-WATCH: table -->
-      <div *ngIf="deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-auto custom-scrollbar">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse table-fixed">
-            <thead>
-              <tr class="bg-white/5 text-white/40 text-xs uppercase tracking-widest">
-                <th class="p-2 md:p-3">Medication</th>
-                <th class="p-2 md:p-3">Frequency</th>
-                <th *ngIf="!isCompactMode" class="p-2 md:p-3">Next Refill</th>
-                <th *ngIf="!isCompactMode" class="p-2 md:p-3">Status</th>
-              </tr>
-            </thead>
-            <tbody class="text-white/80">
-              <tr *ngFor="let m of medications" class="border-t border-white/5 hover:bg-white/5 transition-colors">
-                <td class="p-2 md:p-3 font-bold text-white truncate">{{m.name}}</td>
-                <td class="p-2 md:p-3 truncate">{{m.frequency}}</td>
-                <td *ngIf="!isCompactMode" class="p-2 md:p-3 text-white/50 italic">Jan 12, 2026</td>
-                <td *ngIf="!isCompactMode" class="p-2 md:p-3">
-                  <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-2 shadow-[0_0_8px_#10b981]"></span>
-                  Active
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    <app-month-view *ngIf="view==='month'"
+      [state]="state"
+      (prevMed)="prevMed()"
+      (nextMed)="nextMed()">
+    </app-month-view>
 
   </div>
 </div>
