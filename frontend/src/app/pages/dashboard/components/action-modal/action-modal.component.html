@@ -1,7 +1,7 @@
 <div *ngIf="med" class="modal-backdrop" (click)="emitClose()">
   <div class="modal" (click)="$event.stopPropagation()">
-    <div class="title">{{ med?.name }}</div>
-    <div class="subtitle">{{ med?.dosage }} • {{ scheduledAt | date:'HH:mm' }}</div>
+    <div class="title">{{ med.name }}</div>
+    <div class="subtitle">{{ med.dosage }} • {{ scheduledAt | date:'HH:mm' }}</div>
 
     <div *ngIf="error" class="error">{{ error }}</div>
 

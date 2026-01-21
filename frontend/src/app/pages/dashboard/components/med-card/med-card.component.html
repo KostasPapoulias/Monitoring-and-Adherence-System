@@ -1,5 +1,5 @@
 <button class="med-card" [ngClass]="[status || '', alert ? 'alert' : '', actionable ? 'actionable' : '']" (click)="onClick()">
-  <div class="time" [class.text-red]="alert">{{ med.times?.[0] || '--:--' }}</div>
+  <div class="time" [class.text-red]="alert">{{ med.times[0] || '--:--' }}</div>
   <div class="name">{{ med.name }}</div>
   <div class="dose">{{ med.dosage }}</div>
 </button>
