@@ -1,4 +1,9 @@
-<div class="app-shell h-screen w-full overflow-hidden bg-neutral-900 text-neutral-100 flex flex-col"
+<div *ngIf="!isLoggedIn">
+  <!-- Face login page - full screen, no shell -->
+  <router-outlet></router-outlet>
+</div>
+
+<div *ngIf="isLoggedIn" class="app-shell h-screen w-full overflow-hidden bg-neutral-900 text-neutral-100 flex flex-col"
   [class.mode-wall]="isWallMode"
   [class.mode-phone]="isPhoneMode"
   [class.mode-watch]="isWatchMode"
@@ -8,9 +13,14 @@
     <span class="uppercase tracking-widest text-lg text-neutral-200">
       Smart Wall
     </span>
-    <span class="font-medium text-lg">
-      {{ currentTime }}
-    </span>
+    <div class="flex items-center gap-4">
+      <span class="font-medium text-lg">
+        {{ currentTime }}
+      </span>
+      <button (click)="logout()" class="px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm font-medium transition-colors">
+        Logout
+      </button>
+    </div>
   </header>
 
   <main class="content-wrapper flex-1 min-h-0 overflow-hidden flex flex-col w-full">
@@ -31,6 +41,7 @@
         <a routerLink="/dashboard" routerLinkActive="!bg-emerald-600" class="nav-btn">Dashboard</a>
         <a routerLink="/schedule" routerLinkActive="!bg-emerald-600" class="nav-btn">Schedule</a>
         <a routerLink="/history" routerLinkActive="!bg-emerald-600" class="nav-btn">History</a>
+        <a routerLink="/assistive-controls" routerLinkActive="!bg-blue-600" class="nav-btn">Eye Tracking</a>
         <a routerLink="/emergency" routerLinkActive="!bg-red-600" class="nav-btn danger">Emergency</a>
       </nav>
 
@@ -53,6 +64,10 @@
         <a routerLink="/history" routerLinkActive="active">
           <span>🕘</span>
           <small>History</small>
+        </a>
+        <a routerLink="/assistive-controls" routerLinkActive="active">
+          <span>👁️</span>
+          <small>Eye Track</small>
         </a>
         <a routerLink="/emergency" routerLinkActive="active" class="danger">
           <span>🚨</span>

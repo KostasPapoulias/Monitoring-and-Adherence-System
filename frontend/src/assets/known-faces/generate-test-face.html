@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Test Face Image</title>
+</head>
+<body>
+    <h1>Generate Test Face Image</h1>
+    <p>This page generates a simple test face image for testing face recognition.</p>
+    <canvas id="canvas" width="400" height="400" style="border: 1px solid #ccc;"></canvas>
+    <br>
+    <button onclick="generateAndDownload()">Generate and Download me1.jpg</button>
+    
+    <script>
+        function generateAndDownload() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Simple face drawing
+            ctx.fillStyle = '#fdbcb4';
+            ctx.beginPath();
+            ctx.arc(200, 200, 120, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Eyes
+            ctx.fillStyle = '#000';
+            ctx.beginPath();
+            ctx.arc(160, 170, 20, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(240, 170, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Nose
+            ctx.fillStyle = '#d4a5a5';
+            ctx.beginPath();
+            ctx.ellipse(200, 210, 15, 25, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Mouth
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(200, 260, 40, 0, Math.PI, false);
+            ctx.stroke();
+            
+            // Download
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'me1.jpg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.95);
+        }
+    </script>
+</body>
+</html>

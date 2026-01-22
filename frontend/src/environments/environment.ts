@@ -11,8 +11,8 @@ const apiHost = (() => {
 export const environment = {
   production: false,
   host: apiHost,
-  // Use public CDN for face-api.js models to avoid missing local assets
-  faceModelsPath: 'https://justadudewhohacks.github.io/face-api.js/models',
+  // Load face-api.js models from bundled assets
+  faceModelsPath: 'assets/models',
   offline: false
 };
 /*
