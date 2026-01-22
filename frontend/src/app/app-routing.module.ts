@@ -16,6 +16,7 @@ const routes: Routes = [
   { path: 'history', canActivate: [AuthGuard], canLoad: [AuthGuard], canMatch: [AuthGuard], loadChildren: () => import('./pages/history/history.module').then(m => m.HistoryModule) },
   { path: 'schedule', canActivate: [AuthGuard], canLoad: [AuthGuard], canMatch: [AuthGuard], loadChildren: () => import('./pages/schedule/schedule.module').then(m => m.ScheduleModule) },
   { path: 'emergency', canActivate: [AuthGuard], canLoad: [AuthGuard], canMatch: [AuthGuard], loadChildren: () => import('./pages/emergency/emergency.module').then(m => m.EmergencyModule) },
+  { path: 'assistive-controls', canActivate: [AuthGuard], canLoad: [AuthGuard], canMatch: [AuthGuard], loadChildren: () => import('./pages/assistive-controls/assistive-controls.module').then(m => m.AssistiveControlsModule) },
   //{ path: 'smartwatch', loadChildren: () => import('./pages/smartwatch/smartwatch.module').then(m => m.SmartwatchModule) },
   { path: 'home', canActivate: [AuthGuard], canLoad: [AuthGuard], canMatch: [AuthGuard], loadChildren: () => import('./pages/home/home.module').then(m => m.HomeModule) },
   { path: 'item-shop', component: ItemShopComponent, canActivate: [AuthGuard], canMatch: [AuthGuard] },

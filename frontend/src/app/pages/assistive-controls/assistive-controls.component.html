@@ -1,0 +1,113 @@
+<div class="page">
+  <h2>👁️ Eye Tracking & Pinch Click</h2>
+
+  <div class="alert" *ngIf="!state.running">
+    <strong>📌 Instructions:</strong>
+    <ol>
+      <li>Click <strong>Start</strong> below and allow camera access</li>
+      <li>Look at each screen corner and click the corresponding <strong>Capture</strong> button</li>
+      <li>Once all 4 corners are captured, a <strong>blue cursor</strong> will follow your gaze</li>
+      <li><strong>Pinch</strong> your thumb and index finger together to click at the cursor location</li>
+    </ol>
+  </div>
+
+  <div class="alert success" *ngIf="state.running && state.calibration">
+    ✅ System is running and calibrated! The blue cursor follows your eyes. Pinch to click.
+  </div>
+
+  <div class="alert warning" *ngIf="state.running && !state.calibration">
+    ⚠️ Running but NOT calibrated. Capture all 4 corners to enable cursor mapping.
+  </div>
+
+  <div class="row">
+    <button (click)="start()" [disabled]="state.running" class="btn-primary">
+      {{ state.running ? '✓ Running' : '▶️ Start' }}
+    </button>
+    <button (click)="stop()" [disabled]="!state.running" class="btn-secondary">
+      ⏹️ Stop
+    </button>
+  </div>
+
+  <div class="card">
+    <h3>📍 Calibration</h3>
+    <p class="hint">Look directly at each corner of your screen and press the button. The cursor will appear after all 4 are captured.</p>
+
+    <div class="calibration-grid">
+      <button (click)="capture('topLeft')" [class.captured]="state.corners.topLeft" [disabled]="!state.running">
+        {{ state.corners.topLeft ? '✓' : '' }} Top-Left
+      </button>
+      <button (click)="capture('topRight')" [class.captured]="state.corners.topRight" [disabled]="!state.running">
+        {{ state.corners.topRight ? '✓' : '' }} Top-Right
+      </button>
+      <button (click)="capture('bottomLeft')" [class.captured]="state.corners.bottomLeft" [disabled]="!state.running">
+        {{ state.corners.bottomLeft ? '✓' : '' }} Bottom-Left
+      </button>
+      <button (click)="capture('bottomRight')" [class.captured]="state.corners.bottomRight" [disabled]="!state.running">
+        {{ state.corners.bottomRight ? '✓' : '' }} Bottom-Right
+      </button>
+    </div>
+
+    <div class="row" style="margin-top: 12px;">
+      <button class="btn-danger" (click)="clearCalibration()">🗑️ Clear Calibration</button>
+      <div class="status-badge" [class.ready]="state.calibration">
+        {{ state.calibration ? '✅ Calibrated' : '❌ Not Calibrated' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>⚙️ Settings</h3>
+    <div class="settings-grid">
+      <label class="field">
+        <span>Mirror horizontal (flip X-axis)</span>
+        <input type="checkbox" [(ngModel)]="mirrorX" (change)="assistive.setMirrorX(mirrorX)" />
+      </label>
+
+      <label class="field">
+        <span>Pinch sensitivity (lower = easier)</span>
+        <input type="number" step="0.01" min="0.1" max="0.8" [(ngModel)]="pinchRatio" (change)="assistive.setPinchThresholdRatio(pinchRatio)" />
+      </label>
+
+      <label class="field">
+        <span>Click cooldown (ms)</span>
+        <input type="number" step="50" min="150" max="3000" [(ngModel)]="cooldownMs" (change)="assistive.setClickCooldownMs(cooldownMs)" />
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>📊 Live Status</h3>
+    <div class="status-grid">
+      <div class="status-item">
+        <span class="label">Running:</span>
+        <span class="value" [class.active]="state.running">{{ state.running ? '✓ Yes' : '✗ No' }}</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Face detected:</span>
+        <span class="value" [class.active]="state.hasFace">{{ state.hasFace ? '✓ Yes' : '✗ No' }}</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Hand detected:</span>
+        <span class="value" [class.active]="state.hasHand">{{ state.hasHand ? '✓ Yes' : '✗ No' }}</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Pinching:</span>
+        <span class="value" [class.active]="state.pinching">{{ state.pinching ? '👌 YES' : '✋ No' }}</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Cursor position:</span>
+        <span class="value">{{ state.x != null ? 'x:' + state.x + ', y:' + state.y : 'N/A' }}</span>
+      </div>
+      <div class="status-item">
+        <span class="label">Last click:</span>
+        <span class="value">{{ state.lastClickAt ? (state.lastClickAt | date:'HH:mm:ss') : 'Never' }}</span>
+      </div>
+    </div>
+    <div *ngIf="state.error" class="error-box">
+      <strong>❌ Error:</strong> {{ state.error }}
+    </div>
+  </div>
+
+  <!-- Keep video element in DOM for MediaPipe Camera; hide it visually -->
+  <video #video class="hidden-video" autoplay playsinline muted></video>
+</div>
