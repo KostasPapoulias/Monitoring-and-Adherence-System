@@ -1,0 +1,169 @@
+:host { 
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  background: transparent;
+}
+
+.dashboard-shell {
+  height: 100%;
+  min-height: 0;
+  margin-bottom: 10px;
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 400px),
+              radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent 400px);
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+}
+
+.group {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+:host-context(.mode-watch) {
+  .dashboard-shell {
+    padding: 10px !important;
+  }
+
+  .history-header {
+    margin-bottom: 8px !important;
+  }
+
+  .history-header h1 {
+    font-size: 18px !important;
+    line-height: 1.1 !important;
+  }
+
+  .history-header select {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .kpi-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .kpi {
+    padding: 6px !important;
+    border-radius: 14px !important;
+  }
+
+  /* shrink the big numbers inside KPI cards */
+  .kpi .kpi-value {
+    font-size: 14px !important;
+    margin-top: 0 !important;
+    line-height: 1 !important;
+  }
+
+  /* remove the progress bar on watch to save vertical space */
+  .kpi .kpi-progress {
+    display: none !important;
+  }
+
+  .meds-panel,
+  .actions-panel {
+    padding: 10px !important;
+    border-radius: 16px !important;
+  }
+
+  .actions-panel .group {
+    padding: 10px !important;
+    gap: 12px !important;
+  }
+
+  .actions-panel .group .flex.gap-3.text-xs {
+    display: none !important;
+  }
+
+  .revoke-btn {
+    display: none !important;
+  }
+
+  .watch-med-arrow {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 200;
+    width: 72px;
+    height: 48px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.5);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 20px;
+    line-height: 1;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    backdrop-filter: blur(8px);
+  }
+
+  .watch-med-arrow:active {
+    background: rgba(0, 0, 0, 0.7);
+    transform: translateX(-50%) scale(0.95);
+  }
+
+  .watch-med-arrow-up {
+    top: calc(50% - min(320px, 92vw) / 2 - 60px);
+  }
+
+  .watch-med-arrow-down {
+    bottom: calc(50% - min(320px, 92vw) / 2 - 60px);
+  }
+
+  .watch-type-btn {
+    width: 44px;
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 900;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .watch-type-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.95);
+  }
+}
+
+.type-btn {
+  width: 32px;
+  height: 28px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 900;
+  font-size: 11px;
+}
+
+.type-btn.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar { width: 15px; height: 6px; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+}

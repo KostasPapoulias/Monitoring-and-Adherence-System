@@ -1,0 +1,47 @@
+<div class="flex-1 p-3 md:p-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden flex flex-col min-h-0 animate-fade-in mobile-month">
+  <div class="flex items-center justify-between mb-1">
+    <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">{{ state.deviceMode === 'smartwatch' ? 'M' : 'Monthly Overview' }}</div>
+    <div *ngIf="state.deviceMode !== 'smartwatch'" class="text-[10px] text-white/40">{{ state.medications.length }}</div>
+  </div>
+  <div class="h-px bg-white/10 mb-3"></div>
+
+  <!-- SMARTWATCH: one medication at a time -->
+  <div *ngIf="state.deviceMode === 'smartwatch'" class="flex-1 min-h-0 relative overflow-hidden">
+    <button type="button" class="arrow up" (click)="prevMed.emit()" aria-label="Previous medication">˄</button>
+    <button type="button" class="arrow down" (click)="nextMed.emit()" aria-label="Next medication">˅</button>
+
+    <div *ngIf="state.currentMed as m" class="h-full flex flex-col justify-center">
+      <div class="p-3 rounded-2xl bg-black/20 border border-white/10">
+        <div class="text-white font-black text-base truncate">{{m.name}}</div>
+        <div class="text-white/70 text-sm truncate">{{m.frequency}}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NON-WATCH: table -->
+  <div *ngIf="state.deviceMode !== 'smartwatch'" class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse table-fixed">
+        <thead>
+          <tr class="bg-white/5 text-white/40 text-xs uppercase tracking-widest">
+            <th class="p-2 md:p-3">Medication</th>
+            <th class="p-2 md:p-3">Frequency</th>
+            <th *ngIf="!state.isCompactMode" class="p-2 md:p-3">Next Refill</th>
+            <th *ngIf="!state.isCompactMode" class="p-2 md:p-3">Status</th>
+          </tr>
+        </thead>
+        <tbody class="text-white/80">
+          <tr *ngFor="let m of state.medications" class="border-t border-white/5 hover:bg-white/5 transition-colors">
+            <td class="p-2 md:p-3 font-bold text-white truncate">{{m.name}}</td>
+            <td class="p-2 md:p-3 truncate">{{m.frequency}}</td>
+            <td *ngIf="!state.isCompactMode" class="p-2 md:p-3 text-white/50 italic">Jan 12, 2026</td>
+            <td *ngIf="!state.isCompactMode" class="p-2 md:p-3">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block mr-2 shadow-[0_0_8px_#10b981]"></span>
+              Active
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

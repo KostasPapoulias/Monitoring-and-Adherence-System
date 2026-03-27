@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body {
+	margin: 0;
+	font-family: 'Open Sans', 'Segoe UI', Tahoma, sans-serif;
+	background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08), transparent 35%),
+							radial-gradient(circle at 80% 10%, rgba(255,255,255,0.05), transparent 30%),
+							#0f172a;
+	color: #f8fafc;
+	font-size: 16px;
+	overflow: hidden;
+	position: fixed;
+	width: 100%;
+	height: 100vh;
+}
+
+/* Mobile-friendly helpers */
+.table-responsive { width: 100%; overflow-x: auto; }
+.btn { min-height: 42px; }
+.container { width: 100%; max-width: 1200px; }
+
+@media (max-width: 768px) {
+	.container { max-width: 100%; padding: 0 12px; }
+	h1 { font-size: 1.75rem; }
+	h2 { font-size: 1.5rem; }
+	h3, h4 { font-size: 1.25rem; }
+}

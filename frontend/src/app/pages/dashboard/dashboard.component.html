@@ -1,0 +1,70 @@
+<div class="dashboard-shell"
+     [class.mobile-layout]="isMobile"
+     [class.wall-layout]="isWallDisplay && !isMobile">
+
+  <div class="shell-header">
+    <div class="title">Dashboard</div>
+    <select [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
+      <option *ngFor="let p of personas" [value]="p._id">{{ p.name }}</option>
+    </select>
+  </div>
+
+  <video #bgVideo playsinline muted width="320" height="240" class="sr-only"></video>
+
+  <app-status-banner
+    *ngIf="deviceMode !== 'smartwatch'"
+    [text]="statusMessage.text"
+    [badge]="statusMessage.text.includes('URGENT') || statusMessage.text.includes('Alert') ? 'alert' : 'info'"
+    [hint]="statusMessage.detail || ''">
+  </app-status-banner>
+
+  <ng-container [ngSwitch]="deviceMode">
+    <app-wall-view
+      *ngSwitchCase="'wall-display'"
+      [state]="state"
+      [medStatusFor]="medStatusFor.bind(this)"
+      [cardClass]="cardClass.bind(this)"
+      [hasAlertActive]="hasAlertActive.bind(this)"
+      [getNextScheduledDate]="getNextScheduledDate.bind(this)"
+      (open)="onCardClick($event)">
+    </app-wall-view>
+
+    <app-mobile-view
+      *ngSwitchCase="'smartphone'"
+      [state]="state"
+      [medStatusFor]="medStatusFor.bind(this)"
+      [hasAlertActive]="hasAlertActive.bind(this)"
+      [isActionable]="isActionable.bind(this)"
+      (open)="onCardClick($event)">
+    </app-mobile-view>
+
+    <app-watch-view
+      *ngSwitchCase="'smartwatch'"
+      [state]="state"
+      [watchMed]="watchMed"
+      [medStatusFor]="medStatusFor.bind(this)"
+      [hasAlertActive]="hasAlertActive.bind(this)"
+      [getNextScheduledDate]="getNextScheduledDate.bind(this)"
+      (open)="onCardClick($event)"
+      (next)="watchNextMed()"
+      (prev)="watchPrevMed()">
+    </app-watch-view>
+
+    <app-speaker-view
+      *ngSwitchCase="'smart-speaker'"
+      [state]="state">
+    </app-speaker-view>
+  </ng-container>
+
+
+</div>
+
+<app-action-modal
+    [med]="selectedMedication"
+    [scheduledAt]="selectedScheduledAt"
+    [error]="actionError"
+    [allowAction]="selectedMedication ? isActionAllowed(selectedMedication) : false"
+    (confirm)="confirmSelected()"
+    (postpone)="postponeSelected($event)"
+    (close)="closeAction()">
+</app-action-modal>

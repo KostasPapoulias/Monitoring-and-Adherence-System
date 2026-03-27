@@ -1,0 +1,42 @@
+<div class="dashboard-shell h-full w-full flex flex-col p-1 md:p-1 overflow-hidden">
+  
+  <div class="history-header flex items-center gap-3 mb-3 md:mb-5 flex-wrap">
+    <h1 class="m-0 text-xl md:text-3xl font-bold tracking-tight">History</h1>
+    
+    <!-- Mobile toggle buttons -->
+    <div *ngIf="deviceMode === 'smartphone'" class="flex gap-2">
+      <button type="button" (click)="toggleKpi()" class="px-3 py-1.5 text-xs rounded-lg border transition-all" [ngClass]="{'bg-emerald-600/20 border-emerald-500/50': showKpi, 'bg-white/5 border-white/10': !showKpi}">
+        <ng-container *ngIf="showKpi">&#10003; KPI</ng-container>
+        <ng-container *ngIf="!showKpi">KPI</ng-container>
+      </button>
+      <button type="button" (click)="toggleMedBreakdown()" class="px-3 py-1.5 text-xs rounded-lg border transition-all" [ngClass]="{'bg-emerald-600/20 border-emerald-500/50': showMedBreakdown, 'bg-white/5 border-white/10': !showMedBreakdown}">
+        <ng-container *ngIf="showMedBreakdown">&#10003; Meds</ng-container>
+        <ng-container *ngIf="!showMedBreakdown">Meds</ng-container>
+      </button>
+    </div>
+    
+    <select class="ml-auto bg-white/5 border border-white/10 rounded-2xl px-3 py-2 text-sm md:text-base focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all"
+            [ngModel]="selectedPersonaId" (ngModelChange)="onPersonaChange($event)">
+      <option *ngFor="let p of personas" [value]="p._id">{{p.name}}</option>
+    </select>
+  </div>
+
+  <app-kpi-strip *ngIf="deviceMode !== 'smartphone' || showKpi" [state]="state"></app-kpi-strip>
+
+  <div class="history-body grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-4 flex-1 min-h-0">
+    <app-medication-breakdown 
+      *ngIf="(deviceMode !== 'smartwatch') && (deviceMode !== 'smartphone' || showMedBreakdown)" 
+      [state]="state" 
+      class="lg:col-span-1">
+    </app-medication-breakdown>
+
+    <app-actions-list
+      [state]="state"
+      (prevEvent)="prevEvent()"
+      (nextEvent)="nextEvent()"
+      (setType)="setEventType($event.event, $event.type)"
+      (cancel)="cancelTaken($event)"
+      class="lg:col-span-2 overflow-auto custom-scrollbar">
+    </app-actions-list>
+  </div>
+</div>

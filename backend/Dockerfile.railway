@@ -1,0 +1,55 @@
+# Production Dockerfile for Railway deployment
+# Multi-stage build optimized for Postgres + Prisma
+
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+COPY package.json package-lock.json* ./
+
+# Install all dependencies (including dev)
+RUN npm ci
+
+# Stage 2: Generate Prisma Client
+FROM node:20-alpine AS prisma-generator
+
+WORKDIR /app
+COPY prisma ./prisma
+COPY --from=deps /app/node_modules ./node_modules
+
+# Generate Prisma client
+RUN npx prisma generate
+
+# Stage 3: Build TypeScript
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY tsconfig.json ./
+COPY src ./src
+
+# Compile TypeScript
+RUN npm run build
+
+# Stage 4: Runtime
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install only production dependencies
+COPY package.json package-lock.json* ./
+RUN npm ci --only=production
+
+# Copy Prisma files
+COPY --from=prisma-generator /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=prisma-generator /app/node_modules/@prisma ./node_modules/@prisma
+COPY prisma ./prisma
+
+# Copy compiled JavaScript
+COPY --from=builder /app/dist ./dist
+
+# Expose port (Railway sets PORT env var)
+EXPOSE 8080
+
+# Run migrations and start the app
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]

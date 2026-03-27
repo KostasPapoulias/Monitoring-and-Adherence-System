@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Persona - User personas with device preferences and UI customization
+model Persona {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  age             Int
+  occupation      String?
+  livingSituation String?
+  healthProfile   String?
+  technologyProfile String?
+  behavioralTraits String?
+  
+  // Device preferences
+  primaryDevice   String   // 'wall-display', 'smartphone', 'smart-speaker', 'smartwatch'
+  
+  // Modalities
+  modalityAudio   Boolean  @default(true)
+  modalityVisual  Boolean  @default(true)
+  modalityHaptic  Boolean  @default(false)
+  
+  // UI Settings
+  textSize        String   @default("medium") // 'small', 'medium', 'large'
+  contrast        String   @default("normal") // 'normal', 'high'
+  cognitiveMode   String   @default("standard") // 'simplified', 'standard'
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  medications     Medication[]
+  adherenceEvents AdherenceEvent[]
+  reminderJobs    ReminderJob[]
+}
+
+// Medication - Medication information and schedules
+model Medication {
+  id              String   @id @default(cuid())
+  name            String
+  dosage          String
+  frequency       String
+  times           String[] @default([])
+  sideEffects     String[] @default([])
+  maxPostponeMinutes Int  @default(30)
+  windowMinutes   Int      @default(30)
+  
+  personaId       String?
+  persona         Persona? @relation(fields: [personaId], references: [id])
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  adherenceEvents AdherenceEvent[]
+  reminderJobs    ReminderJob[]
+  
+  @@index([personaId])
+}
+
+// AdherenceEvent - Track when medications were taken or missed
+model AdherenceEvent {
+  id              String   @id @default(cuid())
+  personaId       String?
+  persona         Persona? @relation(fields: [personaId], references: [id])
+  
+  medicationId    String
+  medication      Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  
+  scheduledAt     DateTime
+  confirmedAt     DateTime?
+  type            String   // 'taken', 'missed', 'postponed', 'alert'
+  method          String?  // 'touch', 'voice', 'gesture', 'presence'
+  device          String?
+  postponeMinutes Int?
+  withinWindow    Boolean  @default(true)
+  windowMinutes   Int?
+  corrected       Boolean  @default(false)
+  alertReason     String?  // 'thresholdExceeded', 'overdue', 'missed'
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([personaId])
+  @@index([medicationId, scheduledAt])
+}
+
+// ReminderJob - Scheduled reminders for medications
+model ReminderJob {
+  id              String   @id @default(cuid())
+  medicationId    String
+  medication      Medication @relation(fields: [medicationId], references: [id], onDelete: Cascade)
+  
+  personaId       String
+  persona         Persona @relation(fields: [personaId], references: [id], onDelete: Cascade)
+  
+  scheduledAt     DateTime
+  status          String   @default("pending") // 'pending', 'sent', 'acknowledged', 'missed', 'cancelled'
+  sentAt          DateTime?
+  
+  // Multi-modal channels
+  channelAudio    Boolean  @default(true)
+  channelVisual   Boolean  @default(true)
+  channelHaptic   Boolean  @default(false)
+  
+  deviceHint      String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([medicationId, scheduledAt])
+  @@index([medicationId])
+  @@index([personaId])
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+// Task - Generic task management
+model Task {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// Item - Item shop items
+model Item {
+  id              String   @id @default(cuid())
+  name            String
+  description     String
+  image           String
+  price           Float
+  rating          Float
+  isAvailable     Boolean
+  selected        Boolean
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

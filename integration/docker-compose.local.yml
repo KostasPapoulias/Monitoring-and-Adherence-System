@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  # Postgres Database
+  database:
+    image: postgres:15-alpine
+    container_name: ami-database
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ami_dev}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - database-volume:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build: ../backend
+    container_name: ami-backend
+    restart: always
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@database:5432/${DB_NAME:-ami_dev}
+      - PORT=8080
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../backend/src:/backend/src
+    networks:
+      - ami-network
+
+  # Frontend (optional for local dev)
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: ami-frontend
+    restart: always
+    environment:
+      - API_URL=http://localhost:8080
+    ports:
+      - "4200:80"
+    networks:
+      - ami-network
+
+networks:
+  ami-network:
+    driver: bridge
+
+volumes:
+  database-volume:

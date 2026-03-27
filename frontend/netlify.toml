@@ -1,0 +1,64 @@
+# Netlify Configuration for AMI Frontend
+# This file tells Netlify how to build and deploy the Angular app
+
+[build]
+  # Build command
+  command = "npm run build -- --configuration production"
+  
+  # Output directory that Netlify should serve
+  publish = "dist/frontend"
+  
+  # Function directory (if using Netlify Functions)
+  functions = "netlify/functions"
+
+[build.environment]
+  # Node version
+  NODE_VERSION = "18.12.0"
+  
+  # Environment variables for build
+  ENVIRONMENT = "production"
+
+# Redirect all traffic to index.html for Angular routing (SPA)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=()"
+
+# API rewrite (route /api calls to your backend)
+# Update the origin URL to your Railway backend URL
+[[redirects]]
+  from = "/api/*"
+  to = "https://your-railway-backend-url.up.railway.app/api/:splat"
+  status = 200
+  force = true
+
+# Cache control for assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"

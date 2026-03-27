@@ -1,0 +1,320 @@
+:host {
+	:host,
+html, body {
+  overflow: hidden; 
+  height: 100%;
+  width: 100%;
+}
+}
+
+.app-shell {
+	height: 100vh;
+	min-height: 100vh;
+	width: 100%;
+	background: #0f172a;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+/* SMARTWATCH BACKGROUND (bezel look) */
+.app-shell.mode-watch {
+	background:
+		radial-gradient(circle at 50% 35%, rgba(16, 185, 129, 0.14), transparent 52%),
+		radial-gradient(circle at 50% 120%, rgba(255, 255, 255, 0.06), transparent 55%),
+		radial-gradient(circle at 50% 50%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.85) 60%),
+		#0f172a;
+	font-size: 11px;
+	line-height: 1.25;
+}
+
+/* WATCH: make common controls smaller by default */
+.mode-watch button,
+.mode-watch select,
+.mode-watch input {
+	font-size: 11px;
+}
+
+.mode-watch select {
+	padding-top: 8px;
+	padding-bottom: 8px;
+}
+
+.mode-watch .nav-btn {
+	padding: 5px 10px;
+	border-radius: 10px;
+}
+
+/* SMARTWATCH SIZE  */
+.app-shell.mode-watch .content-wrapper {
+	max-width: none;
+	margin: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 8px;
+}
+
+.app-shell.mode-watch .content-panel {
+	width: min(320px, 92vw);
+	height: min(320px, 92vw);
+	position: relative;
+	border-radius: 28px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(255, 255, 255, 0.04);
+	overflow: hidden;
+}
+
+/* WATCH: left/right arrows for page-to-page navigation */
+.app-shell.mode-watch .watch-nav-arrow {
+	position: fixed;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 200;
+	width: 48px;
+	height: 72px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 20px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	background: rgba(0, 0, 0, 0.5);
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 32px;
+	line-height: 1;
+	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+	backdrop-filter: blur(8px);
+}
+
+.app-shell.mode-watch .watch-nav-arrow:active {
+	background: rgba(0, 0, 0, 0.7);
+	transform: translateY(-50%) scale(0.95);
+}
+
+.app-shell.mode-watch .watch-nav-arrow-left {
+	left: calc(50% - min(320px, 92vw) / 2 - 60px);
+}
+
+.app-shell.mode-watch .watch-nav-arrow-right {
+	right: calc(50% - min(320px, 92vw) / 2 - 60px);
+}
+
+.app-shell.mode-watch .route-content {
+	padding: 0;
+}
+
+.route-content {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Each routed component's host element must be allowed to shrink and scroll */
+/* IMPORTANT: <router-outlet> itself is an empty element in the DOM.
+   If it gets height/flex styles it will create a large blank area. */
+.route-content > router-outlet {
+	flex: 0 0 auto;
+	height: 0;
+	min-height: 0;
+	padding: 0;
+	margin: 0;
+}
+
+.route-content > :not(router-outlet) {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	height: 100%;
+}
+
+.topbar {
+	position: sticky;
+	top: 0;
+	z-index: 40;
+}
+
+.content-wrapper {
+	max-width: 1200px;
+	margin: 0 auto;
+}
+
+.content-panel {
+	width: 100%;
+}
+
+.burger-toggle {
+	display: grid;
+	gap: 4px;
+	width: 40px;
+	padding: 6px 8px;
+	border: 1px solid rgba(255,255,255,0.2);
+	border-radius: 10px;
+	background: rgba(255,255,255,0.08);
+}
+
+.burger-toggle span {
+	display: block;
+	height: 2px;
+	background: #fff;
+	border-radius: 999px;
+}
+
+.burger-link {
+	padding: 10px 12px;
+	border-radius: 10px;
+	background: rgba(255,255,255,0.08);
+	border: 1px solid rgba(255,255,255,0.1);
+	transition: background 120ms ease, border-color 120ms ease;
+}
+
+.burger-link:hover {
+	background: rgba(255,255,255,0.15);
+	border-color: rgba(255,255,255,0.2);
+}
+
+.burger-link.danger {
+	background: rgba(220,38,38,0.2);
+	border-color: rgba(220,38,38,0.35);
+}
+
+@media (max-width: 768px) {
+	.content-wrapper {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.content-panel {
+		border-radius: 0;
+		border-width: 0;
+		background: transparent;
+	}
+
+	.primary-nav {
+		position: sticky;
+		top: 48px;
+		z-index: 25;
+		border-radius: 0;
+		background: rgba(0, 0, 0, 0.6);
+		backdrop-filter: blur(6px);
+	}
+
+	.route-content {
+		padding: 12px;
+	}
+
+	html, body {
+    overscroll-behavior: none;
+    touch-action: manipulation;
+  }
+}
+
+.nav-btn {
+  padding: 6px 14px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  transition: background 120ms;
+}
+
+.nav-btn.danger {
+  background: rgba(220,38,38,0.6);
+}
+
+/* PHONE CONTENT ONLY */
+.phone-content {
+  padding: 12px;
+  padding-bottom: 150px;
+}
+
+.mode-watch .phone-content {
+	padding: 6px;
+	padding-bottom: 46px;
+}
+
+.mode-speaker .phone-content {
+	padding: 14px;
+	padding-bottom: 96px;
+}
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 100;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255,255,255,0.12);
+
+  padding-bottom: env(safe-area-inset-bottom);
+
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+/* WATCH: keep bottom nav inside the watch panel (not the browser window) */
+.app-shell.mode-watch .bottom-nav {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-top-left-radius: 18px;
+	border-top-right-radius: 18px;
+}
+
+.mode-watch .bottom-nav a {
+	padding: 6px 0 4px;
+	font-size: 9px;
+	gap: 2px;
+}
+
+.mode-watch .bottom-nav a span {
+	font-size: 18px;
+}
+
+.mode-watch .bottom-nav a small {
+	display: none;
+}
+
+.mode-speaker .bottom-nav a {
+	font-size: 12px;
+}
+
+.mode-speaker .bottom-nav a span {
+	font-size: 22px;
+}
+
+.bottom-nav a {
+  padding: 10px 0 8px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 11px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav a span {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bottom-nav a.active {
+  color: #34d399;
+}
+
+.bottom-nav a.danger.active {
+  color: #f87171;
+}

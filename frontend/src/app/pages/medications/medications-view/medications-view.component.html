@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-6">
+    <h4>Add Medication</h4>
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <div>
+        <label>Name</label>
+        <input class="form-control" formControlName="name" />
+      </div>
+      <div>
+        <label>Dosage</label>
+        <input class="form-control" formControlName="dosage" />
+      </div>
+      <div>
+        <label>Frequency</label>
+        <input class="form-control" formControlName="frequency" />
+      </div>
+      <div>
+        <label>Times (comma-separated, HH:mm)</label>
+        <input class="form-control" formControlName="times" />
+      </div>
+      <div>
+        <label>Side Effects (comma-separated)</label>
+        <input class="form-control" formControlName="sideEffects" />
+      </div>
+      <button class="btn btn-primary mt-2" type="submit">Save</button>
+    </form>
+  </div>
+  <div class="col-6">
+    <h4>List</h4>
+    <ul>
+      <li *ngFor="let m of list">
+        {{m.name}} — {{m.dosage}} — {{m.frequency}} ({{ m.times && m.times.length ? m.times.join(', ') : '' }})
+        <button class="btn btn-link" (click)="remove(m)">Delete</button>
+      </li>
+    </ul>
+  </div>
+</div>

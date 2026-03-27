@@ -1,0 +1,33 @@
+<div class="h-full w-full p-4">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+    <div class="md:col-span-2">
+      <div class="rounded-xl border border-white/10 bg-white/5 p-4">
+        <div class="w-full rounded-lg bg-black/40 overflow-hidden relative grid place-items-center h-48 sm:h-56 md:h-64">
+          <video #videoEl playsinline muted class="absolute inset-0 h-full w-full object-cover"></video>
+          <div class="text-neutral-400" *ngIf="!scanning && !recognized">Camera idle</div>
+          <div class="text-emerald-300 animate-pulse" *ngIf="scanning">Scanning face…</div>
+          <div class="text-emerald-400" *ngIf="recognized">Face recognized ✔</div>
+          <div class="absolute bottom-2 left-2 right-2 text-center">
+            <div *ngIf="proximity === 'far'" class="text-amber-200 bg-black/40 inline-block px-3 py-1 rounded">
+              Face detected far away — please move closer to view details.
+            </div>
+            <div *ngIf="proximity === 'near' && !recognized" class="text-emerald-200 bg-black/40 inline-block px-3 py-1 rounded">
+              Face close enough — hold steady to verify.
+            </div>
+          </div>
+          <div class="mt-2 text-sm text-rose-300" *ngIf="cameraError">{{ cameraError }}</div>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center justify-center gap-4">
+        <button (click)="startScan()" [disabled]="scanning || recognized"
+                class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:hover:bg-emerald-600 transition">
+          Start Scan
+        </button>
+        <button (click)="unlock()" [disabled]="!recognized"
+                class="px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-50 transition">
+          Unlock
+        </button>
+      </div>
+    </div>    
+  </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="meds-panel h-full p-2 md:p-5 rounded-2xl bg-white/5 border border-white/10 flex flex-col overflow-hidden">
+  <div class="flex items-center justify-between mb-3">
+    <div class="text-white/70 text-[10px] uppercase font-black tracking-widest">By Medication</div>
+    <div class="text-[10px] text-white/40">{{ state.medicationBreakdown.length }}</div>
+  </div>
+  <div *ngIf="state.medicationBreakdown.length === 0" class="text-white/50 text-sm">No events yet.</div>
+
+  <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1">
+    <div *ngFor="let m of state.medicationBreakdown" class="py-1 border-t border-white/10 first:border-t-0">
+      <div class="flex items-center justify-between gap-3">
+        <div class="font-bold text-white truncate">{{ m.medicationName || m.medicationId }}</div>
+        <div class="text-[10px] text-white/60 font-mono">{{m.total}}</div>
+      </div>
+      <div class="mt-2 grid grid-cols-3 gap-2 text-[11px]">
+        <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 text-emerald-200">T: <span class="font-mono">{{m.taken}}</span></div>
+        <div class="rounded-xl bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 text-yellow-200">P: <span class="font-mono">{{m.postponed}}</span></div>
+        <div class="rounded-xl bg-red-500/10 border border-red-500/20 px-2 py-1 text-red-200">M: <span class="font-mono">{{m.missed}}</span></div>
+      </div>
+    </div>
+  </div>
+</div>
