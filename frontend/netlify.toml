@@ -2,6 +2,9 @@
 # This file tells Netlify how to build and deploy the Angular app
 
 [build]
+  # Base directory where package.json is located
+  base = "frontend"
+  
   # Build command
   command = "npm run build -- --configuration production"
   
