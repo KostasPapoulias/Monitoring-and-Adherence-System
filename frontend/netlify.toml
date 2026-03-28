@@ -1,4 +1,4 @@
-http://monitoring-and-adherence-system.railway.internal# Netlify Configuration for AMI Frontend
+# Netlify Configuration for AMI Frontend
 # This file tells Netlify how to build and deploy the Angular app
 
 [build]
