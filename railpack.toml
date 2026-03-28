@@ -1,0 +1,17 @@
+[build]
+# Tell Railway to use Node.js with npm
+providers = ["nodejs-npm"]
+
+# Change to backend directory since it's a monorepo
+root = "backend"
+
+# Build commands
+cmds = [
+  "npm install",
+  "npx prisma generate",
+  "npm run build"
+]
+
+[start]
+# Start the app
+cmd = "npm start"
