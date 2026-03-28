@@ -60,12 +60,12 @@ export class FaceLoginComponent implements OnInit, OnDestroy {
     this.statusText = 'Ready to login';
   }
 
-  async selectPersona(personaName: string): Promise<void> {
+  selectPersona(personaName: string): void {
     this.state = 'LOADING';
     this.statusText = `Logging in as ${personaName}…`;
     
     try {
-      await this.auth.login(personaName);
+      this.auth.login({ id: personaName, name: personaName });
       this.router.navigate([this.redirectTo || '/dashboard']);
     } catch (err: any) {
       this.state = 'ERROR';
@@ -146,102 +146,6 @@ export class FaceLoginComponent implements OnInit, OnDestroy {
     if (!video || video.readyState < 2) {
       this.tickInFlight = false;
       return;
-    }
-
-    const now = Date.now();
-    const inSleep = this.state === 'SLEEP';
-    const shouldProbe = !inSleep || now - this.lastProbeAt >= this.sleepProbeIntervalMs;
-    
-    if (!shouldProbe) {
-      this.tickInFlight = false;
-      return;
-    }
-    
-    this.lastProbeAt = now;
-
-    try {
-      // Use fresh recognition (no cache) for accurate login
-      const result = await this.face.recognizeFromVideo(video, true);
-      if (!result) {
-        this.handleNoFace(now);
-      } else {
-        this.handleFace(result, now);
-      }
-    } catch (err: any) {
-      // Silently ignore recognition errors
-    } finally {
-      this.tickInFlight = false;
-    }
-  }
-
-  private handleNoFace(now: number): void {
-    if (this.state === 'RECOGNIZED') return;
-
-    if (this.state !== 'SLEEP') {
-      this.state = 'SCANNING';
-      this.statusText = 'Scanning face…';
-    }
-
-    // Enter sleep mode after 5s of no face
-    if (now - this.lastFaceAt >= this.sleepAfterMs && this.state !== 'SLEEP') {
-      this.state = 'SLEEP';
-      this.sleepingSince = now;
-      this.statusText = 'Waiting for face…';
-    }
-  }
-
-  private handleFace(result: { label: string; distance: number }, now: number): void {
-    this.lastFaceAt = now;
-
-    // Wake up from sleep
-    if (this.state === 'SLEEP') {
-      this.state = 'SCANNING';
-      this.statusText = 'Scanning face…';
-      this.sleepingSince = null;
-      this.lastProbeAt = 0;
-    }
-
-    // Check if this is a recognized user
-    const recognized = result.label !== 'unknown' && result.distance <= this.face.threshold;
-    if (recognized && !this.loginCooldown) {
-      this.triggerLogin(result.label);
-    }
-  }
-
-  private async triggerLogin(label: string): Promise<void> {
-    this.loginCooldown = true;
-    this.state = 'RECOGNIZED';
-    this.statusText = 'Welcome…';
-
-    this.auth.login(label);
-    this.stopDetectionLoop();
-    this.stopCamera();
-
-    // Small delay for UX, then navigate
-    await new Promise(r => setTimeout(r, 500));
-    const target = this.redirectTo || '/dashboard';
-    this.router.navigate([target]);
-  }
-
-  private waitForVideoEl(timeoutMs = 1500): Promise<HTMLVideoElement> {
-    return new Promise((resolve, reject) => {
-      const start = performance.now();
-      const check = () => {
-        if (this.videoRef?.nativeElement) {
-          resolve(this.videoRef.nativeElement);
-          return;
-        }
-        if (performance.now() - start > timeoutMs) {
-          reject(new Error('Video element not ready'));
-          return;
-        }
-        requestAnimationFrame(check);
-      };
-      check();
-    });
-  }
-}
-
     }
 
     const now = Date.now();
