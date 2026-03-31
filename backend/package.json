@@ -8,6 +8,7 @@
     "start": "ts-node-dev src/index.ts",
     "dev": "nodemon --legacy-watch",
     "seed:personas": "ts-node src/scripts/seed-personas.ts",
+    "seed:prisma": "ts-node src/scripts/seed-personas-prisma.ts",
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio"
