@@ -1,4 +1,11 @@
 <div class="watch-view">
+  <!-- Header with user selection and back button -->
+  <div class="watch-header">
+    <select [ngModel]="selectedPersonaId" (ngModelChange)="personaChange.emit($event)" class="persona-select">
+      <option *ngFor="let p of personas" [value]="p._id">{{ p.name }}</option>
+    </select>
+  </div>
+
   <button class="arrow up" (click)="prev.emit()">˄</button>
   <button class="arrow down" (click)="next.emit()">˅</button>
 

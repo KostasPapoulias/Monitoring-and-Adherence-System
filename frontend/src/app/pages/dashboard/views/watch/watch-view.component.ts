@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { DashboardState } from '../../dashboard.state';
 import { MedicationModel } from 'src/app/global/models/medications/medication.model';
+import { PersonaModel } from 'src/app/global/models/personas/persona.model';
 
 @Component({
   selector: 'app-watch-view',
@@ -13,7 +14,10 @@ export class WatchViewComponent {
   @Input() medStatusFor!: (med: MedicationModel) => { text: string; class: string };
   @Input() hasAlertActive!: (med: MedicationModel) => boolean;
   @Input() getNextScheduledDate!: (med: MedicationModel) => Date | null;
+  @Input() personas: PersonaModel[] = [];
+  @Input() selectedPersonaId: string | null = null;
   @Output() open = new EventEmitter<MedicationModel>();
   @Output() next = new EventEmitter<void>();
   @Output() prev = new EventEmitter<void>();
+  @Output() personaChange = new EventEmitter<string>();
 }

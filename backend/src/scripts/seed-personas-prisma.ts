@@ -3,8 +3,8 @@ import { PrismaClient } from '@prisma/client';
 // Create a Prisma Client instance
 const prisma = new PrismaClient();
 
-async function seed() {
-  console.log('Starting to seed personas...');
+async function () {
+  console.log('Starting to  personas...');
 
   const personas = [
     {
@@ -90,13 +90,13 @@ async function seed() {
       console.log(`Created persona: ${created.name}`);
     }
 
-    console.log('Seeding completed successfully!');
+    console.log('ing completed successfully!');
   } catch (error) {
-    console.error('Error seeding database:', error);
+    console.error('Error ing database:', error);
     throw error;
   } finally {
     await prisma.$disconnect();
   }
 }
 
-seed();
+();

@@ -42,12 +42,15 @@
       *ngSwitchCase="'smartwatch'"
       [state]="state"
       [watchMed]="watchMed"
+      [personas]="personas"
+      [selectedPersonaId]="selectedPersonaId"
       [medStatusFor]="medStatusFor.bind(this)"
       [hasAlertActive]="hasAlertActive.bind(this)"
       [getNextScheduledDate]="getNextScheduledDate.bind(this)"
       (open)="onCardClick($event)"
       (next)="watchNextMed()"
-      (prev)="watchPrevMed()">
+      (prev)="watchPrevMed()"
+      (personaChange)="onPersonaChange($event)">
     </app-watch-view>
 
     <app-speaker-view
